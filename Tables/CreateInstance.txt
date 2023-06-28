@@ -1,0 +1,1 @@
+CREATE DATABASE testDb on (name = 'testDb', filename = 'C:\mit\C#\TestDb\TestDb.mdf')

@@ -5,7 +5,7 @@ CREATE TABLE TblChitMemberInfo
   [ctmbr_lot_no]            INT,
   [ctmbr_mbr_id]            INT,
   [ctmbr_sector]            VARCHAR(50),
-  [ctmbr_win_sts]           INT,
+  [ctmbr_win_sts]           INT DEFAULT 0,
   [ctmbr_due_count]         INT DEFAULT 0,
   [ctmbr_status]            SMALLINT DEFAULT 0,
   CONSTRAINT pk_ctmbr_no PRIMARY KEY (ctmbr_no),
@@ -49,6 +49,13 @@ VALUES
 (1004),
 (1005)
 
+INSERT INTO [dbo].[TblChitMemberInfo]
+( -- Columns to insert data into
+ [ctmbr_lot_no], [ctmbr_mbr_id]
+)
+VALUES (1007, 1004)
+
+
 select * from TblChitMemberInfo
 
 update TblChitMemberInfo set ctmbr_sector = 'NYK_001' where ctmbr_no = 3
@@ -59,3 +66,7 @@ update TblChitMemberInfo set ctmbr_mbr_id = 1002 where ctmbr_no = 9
 update TblChitMemberInfo set ctmbr_mbr_id = 1003 where ctmbr_no = 10
 update TblChitMemberInfo set ctmbr_mbr_id = 1004 where ctmbr_no = 11
 update TblChitMemberInfo set ctmbr_mbr_id = 1005 where ctmbr_no = 12
+update TblChitMemberInfo set ctmbr_mbr_id = 1005 where ctmbr_no = 12
+
+update TblChitMemberInfo set ctmbr_win_sts = 0 
+

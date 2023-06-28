@@ -13,4 +13,5 @@ CREATE TABLE TblSector
 select * from TblSector
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('TPR_001', 'Tholpara North', 'North side of Tholpara');
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('AKL_001', 'Areekkal', 'Areekkal side from Narayanakkunnu');
-insert into TblSector (sectorId, SectorName, SectorInfo) values ('NYK_001', 'Narayanakunnu', 'Narayanakkunnu frrom Areekkal side to Kalathingal');
+insert into TblSector (sectorId, SectorName, SectorInfo) values ('NYK_001', 'Narayanakunnu', 'Narayanakkunnu from Areekkal side to Kalathingal');
+insert into TblSector (sectorId, SectorName, SectorInfo) values ('KAK_001', 'Kallaramkettil', 'Kallaramkettu from Areekkal side to Kalathingal');

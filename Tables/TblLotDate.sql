@@ -17,7 +17,7 @@ CREATE TABLE TblLotDateInfo
 
 SELECT * FROM [dbo].[TblLotDateInfo]
 
-
+drop view VIW_LOT_TAKEN_DATE
 CREATE VIEW VIW_LOT_TAKEN_DATE AS
 SELECT 
   [lot_chity_id]	  as 'Chits ID',
