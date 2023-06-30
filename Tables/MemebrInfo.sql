@@ -28,6 +28,19 @@ CREATE VIEW VW_MEMBERS as SELECT
 [mem_phone]     as 'Contact'
 FROM TblMembers where mem_status = 0;
 
+--DROP VIEW RPT_VW_MEMBERS
+CREATE VIEW RPT_VW_MEMBERS as 
+SELECT 
+[mem_id_no]  as 'Memebr_ID',
+[mem_first_name] as 'First_Name',
+[mem_last_name]  as 'Last_Name',
+(select SectorName from TblSector where TblMembers.mem_sector = TblSector.sectorId)  as 'Sector',
+(Select LEFT([mem_mail], 18) ) as 'Mail_ID',
+[mem_phone]     as 'Contact'
+FROM TblMembers where mem_status = 0;
+
+
+
 select * from VW_MEMBERS
 
 -- Insert rows into table 'TableName' in schema '[dbo]'

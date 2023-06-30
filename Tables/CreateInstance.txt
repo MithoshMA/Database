@@ -1,1 +1,8 @@
 CREATE DATABASE testDb on (name = 'testDb', filename = 'C:\mit\C#\TestDb\TestDb.mdf')
+
+CREATE DATABASE testDb on (name = 'testDb', filename = 'C:\mit\C#\TestDb\TestDb.mdf')
+
+Data Source=(LocalDb)\testDb;AttachDbFilename='C:\mit\DbFile\TestDb.mdf';Initial Catalog=testDb;Integrated Security=True
+
+
+ata Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\mit\DbFile\TestDb.mdf;Integrated Security=True;Connect Timeout=30

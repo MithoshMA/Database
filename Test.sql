@@ -53,3 +53,12 @@ delete from Table1
 select A.ctmbr_mbr_id
 JOIN 
 from TblChitMemberInfo A on VW_MEMBERS B
+
+
+DROP TABLE #dateFormats
+DECLARE @counter INT = 0
+DECLARE @date DATETIME = '2006-12-30 00:38:54.840'
+
+select CONVERT('2006-12-30 00:38:54.840', 1)
+
+select convert(varchar, getdate(), 1)

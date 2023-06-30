@@ -18,7 +18,7 @@ CREATE TABLE TblLotDateInfo
 SELECT * FROM [dbo].[TblLotDateInfo]
 
 drop view VIW_LOT_TAKEN_DATE
-CREATE VIEW VIW_LOT_TAKEN_DATE AS
+/*CREATE VIEW VIW_LOT_TAKEN_DATE AS
 SELECT 
   [lot_chity_id]	  as 'Chits ID',
   [lot_date]   as 'Date',
@@ -29,15 +29,30 @@ SELECT
   [lot_pay_amount]  as 'Amount'
   from TblLotDateInfo
 where 
+[lot_status]  = 0 */
+
+CREATE VIEW VIW_LOT_TAKEN_DATE AS
+SELECT 
+  A.[lot_chity_id]	  as 'Chits ID',  
+  [lot_number]   as 'Installment',
+  (select convert(varchar, [lot_date] , 1)) as 'Date',
+  CASE WHEN [lot_type] = 1 THEN 'Normal' ELSE 'Muthal' END AS 'Chit Type',
+  [lot_taken_status] as 'Status',
+  C.mem_first_name +' ' + C.mem_last_name  as 'Winner',
+  [lot_pay_amount]  as 'Amount'
+  from TblLotDateInfo A
+  LEFT JOIN TblChitMemberInfo B ON A.lot_winner_no = B.ctmbr_lot_no
+  LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
+where 
 [lot_status]  = 0 
 
 
 ---UPDATE [dbo].[TblLotDateInfo]
 SET
   [lot_taken_status] = 1,
-  [lot_winner_no] = 1005
+  [lot_type] = 0
   -- Add more columns and values here
-WHERE  lot_id_no = 2
+WHERE  lot_id_no = 3
 
 GO
 select * from VIW_LOT_TAKEN_DATE where [Chits ID] = 'Chit NO 2023/08-A'

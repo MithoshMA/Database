@@ -22,17 +22,21 @@ CREATE TABLE TblChitInfo
 SELECT * FROM [dbo].[TblChitInfo]
 
 
-CREATE VIEW VIW_CHIT_INFO as SELECT 
-  [chit_id]  as 'Chits ID',
-  [chit_name]  as 'Chits Name',
+DROP VIEW VIW_CHIT_INFO;
+
+CREATE VIEW VIW_CHIT_INFO
+AS
+SELECT 
+  [chit_id]  as 'Chit ID',
+  [chit_name]  as 'Name',
   [chit_amount]  as 'Chits Amount',
-  [chit_month_amt]     as 'Montly Amount',
+  [chit_month_amt]     as 'Installment Amount',
   [chit_member_count]  as 'Memeber Count',
   [chit_lot_start]    as 'Start No',
-  [chit_start_dt]     as 'Start Date',
+  (select convert(varchar, [chit_start_dt] , 1)) as 'Date',
   [chit_duration]     as 'Duration',
   [chit_auction_date] as 'Lot Date',
-  [chit_condition]    as 'Condition'
+  CASE WHEN [chit_condition] = 1 THEN 'Running' ELSE 'Closed' END AS 'Condition'
   from TblChitInfo
   where chit_status = 0;
 
