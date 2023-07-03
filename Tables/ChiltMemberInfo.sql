@@ -20,7 +20,8 @@ SELECT * FROM [dbo].[TblChitMemberInfo]
 
 --DROP VIEW VW_CHIT_MEMBER_INFO
 --https://www.w3schools.com/mysql/mysql_join.asp
-CREATE VIEW VW_CHIT_MEMBER_INFO as 
+GO
+CREATE VIEW VW_CHIT_MEMBER_INFO
 (
   SELECT 
   A.ctmbr_lot_no    as 'Lot No',
@@ -33,6 +34,7 @@ CREATE VIEW VW_CHIT_MEMBER_INFO as
   FROM TblChitMemberInfo A
   LEFT JOIN TblMembers B ON A.ctmbr_mbr_id = B.mem_id_no
 )
+GO
 
 select * from VW_CHIT_MEMBER_INFO
 delete from TblChitMemberInfo
@@ -58,7 +60,8 @@ VALUES (1007, 1004)
 
 select * from TblChitMemberInfo
 
-update TblChitMemberInfo set ctmbr_sector = 'NYK_001' where ctmbr_no = 3
+update TblChitMemberInfo set ctmbr_sector = 'AKL_001' where ctmbr_mbr_id = 1004
+update TblChitMemberInfo set ctmbr_sector = 'KAK_001' where ctmbr_mbr_id = 1000
 
 update TblChitMemberInfo set ctmbr_mbr_id = 1000 where ctmbr_no = 7
 update TblChitMemberInfo set ctmbr_mbr_id = 1001 where ctmbr_no = 8

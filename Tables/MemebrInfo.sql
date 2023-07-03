@@ -19,6 +19,7 @@ CREATE TABLE TblMembers
 SELECT * FROM [dbo].[TblMembers]
 
 --DROP VIEW VW_MEMBERS
+GO
 CREATE VIEW VW_MEMBERS as SELECT 
 [mem_id_no]  as 'Memebr ID',
 [mem_first_name] as 'First Name',
@@ -27,7 +28,7 @@ CREATE VIEW VW_MEMBERS as SELECT
 [mem_mail]  as 'Mail ID',
 [mem_phone]     as 'Contact'
 FROM TblMembers where mem_status = 0;
-
+GO
 --DROP VIEW RPT_VW_MEMBERS
 CREATE VIEW RPT_VW_MEMBERS as 
 SELECT 
@@ -56,7 +57,7 @@ VALUES
  1050, 'Sajeesh', 'Kunnummal', 'AKL_001', ' ', ' '
 )
 
-DELETE FROM TblMembers
+--DELETE FROM TblMembers
 INSERT INTO [dbo].[TblMembers]([mem_id_no], [mem_first_name], [mem_last_name],  [mem_sector],  [mem_mail], [mem_phone]) 
 VALUES 
 (1000, 'Mitosh', 'Mele Areekkal', 'AKL_001', 'ma.mithosh@gmail.com', '819037365198'),
@@ -71,7 +72,7 @@ select TblMembers.mem_id_no, (select SectorName from TblSector where TblMembers.
 -- Add more rows here
 GO
 
-update TblMembers set mem_first_name = 'Mithosh' where mem_id_no = 1000
+update TblMembers set mem_phone = '9091929394' where mem_id_no = 1000
 -- Update rows in table '[TableName]' in schema '[dbo]'
 UPDATE [dbo].[TableName]
 SET

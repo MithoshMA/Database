@@ -10,6 +10,16 @@ CREATE TABLE TblSector
   SectorInfo VARCHAR(50),  
 );
 
+GO
+DROP VIEW RPT_VIEW_SECTOR_INFO
+GO
+CREATE VIEW RPT_VIEW_SECTOR_INFO
+AS
+SELECT * FROM TblSector
+GO
+
+SELECT * FROM RPT_VIEW_SECTOR_INFO
+
 select * from TblSector
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('TPR_001', 'Tholpara North', 'North side of Tholpara');
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('AKL_001', 'Areekkal', 'Areekkal side from Narayanakkunnu');

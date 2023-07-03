@@ -21,24 +21,25 @@ CREATE TABLE TblChitInfo
 -- Select rows from a Table or View '[TableOrViewName]' in schema '[dbo]'
 SELECT * FROM [dbo].[TblChitInfo]
 
-
+GO
 DROP VIEW VIW_CHIT_INFO;
-
+GO
 CREATE VIEW VIW_CHIT_INFO
 AS
 SELECT 
-  [chit_id]  as 'Chit ID',
+  [chit_id]  as 'Chit_ID',
   [chit_name]  as 'Name',
-  [chit_amount]  as 'Chits Amount',
-  [chit_month_amt]     as 'Installment Amount',
-  [chit_member_count]  as 'Memeber Count',
-  [chit_lot_start]    as 'Start No',
+  [chit_amount]  as 'Chits_Amount',
+  [chit_month_amt]     as 'Inst_Amount',
+  [chit_member_count]  as 'Memeber_Count',
+  [chit_lot_start]    as 'Start_No',
   (select convert(varchar, [chit_start_dt] , 1)) as 'Date',
-  [chit_duration]     as 'Duration',
-  [chit_auction_date] as 'Lot Date',
+  [chit_duration]     as 'Inst_Count',
+  [chit_auction_date] as 'Lot_Date',
   CASE WHEN [chit_condition] = 1 THEN 'Running' ELSE 'Closed' END AS 'Condition'
   from TblChitInfo
   where chit_status = 0;
+GO
 
   select *from VIW_CHIT_INFO
   --delete from TblChitInfo
