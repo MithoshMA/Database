@@ -73,3 +73,5 @@ update TblChitMemberInfo set ctmbr_mbr_id = 1005 where ctmbr_no = 12
 
 update TblChitMemberInfo set ctmbr_win_sts = 0 
 
+update TblChitMemberInfo set ctmbr_lot_no = ctmbr_lot_no * 10
+

@@ -102,3 +102,4 @@ VALUES
 ( 'Chit NO 2023/08-A', 37, '2025-08-01', 1000);
 
 Select * from TblLotDateInfo
+
