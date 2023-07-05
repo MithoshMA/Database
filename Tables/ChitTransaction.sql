@@ -56,7 +56,7 @@ GO
 CREATE VIEW RPT_VIEW_CHIT_TRANS 
 AS
 SELECT
-A.tct_lot_id as 'Lot_Id',
+L.lot_number as 'Installment',
 A.tct_lot_no as 'Lot_No',
 (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
 B.ctmbr_mbr_id as 'Memebr_ID',
@@ -82,7 +82,7 @@ AS
     SELECT * FROM 
     (
     SELECT
-    A.tct_lot_id as 'Lot_Id',
+    L.lot_number as 'Installment',
     A.tct_lot_no as 'Lot_No',
     (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
     B.ctmbr_mbr_id as 'Memebr_ID',
@@ -108,7 +108,7 @@ AS
 SELECT * FROM 
 (
     SELECT
-    A.tct_lot_id as 'Lot_Id',
+    L.lot_number as 'Installment',
     A.tct_lot_no as 'Lot_No',
     (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
     B.ctmbr_mbr_id as 'Memebr_ID',
@@ -177,11 +177,51 @@ SELECT First_Name, Sector_Name, COUNT(First_Name) as 'Count', SUM(Balance) as 'A
 
 select * from TblChitTrans
 
-DECLARE @lotno INT
-SET @lotno = 3
+delete from TblChitTrans
 
+DECLARE @lotno INT
+SET @lotno = 4
 INSERT INTO TblChitTrans (tct_lot_id, tct_lot_no) 
 SELECT @lotno, ctmbr_lot_no FROM TblChitMemberInfo
 
-insert into TblChitTrans (tct_lot_id, tct_lot_no)
-select tct_lot_id, tct_lot_no from TblChitTrans
+---UPDATE TblChitTrans SET tct_paydate = '2023/07/05', tct_paid_amount = 1000, tct_due_status = 1, tct_agent_id = 1 WHERE tct_lot_no = 1003 and tct_lot_id = (SeleCT lot_id_no from TblLotDateInfo where [lot_number] = 1 and  [lot_date] = (select convert(varchar, '2023-08-01' , 1)) )
+GO
+UPDATE TblChitTrans
+SET tct_paydate = '2023/07/05', 
+tct_paid_amount = 1000,
+tct_due_status = 1,
+tct_agent_id = 1
+WHERE tct_lot_no = 1003 and tct_lot_id = 
+(SeleCT lot_id_no from TblLotDateInfo where [lot_number] = 2 and  [lot_date] = (select convert(varchar, '2023-08-01' , 1)) )
+
+
+GO
+--Try
+DROP VIEW RPT_VIEW_CHIT_TRANS_NO_DUE
+GO
+CREATE VIEW RPT_VIEW_CHIT_TRANS_NO_DUE
+AS
+SELECT * FROM 
+(
+    SELECT
+    L.lot_number as 'Installment',
+    A.tct_lot_no as 'Lot_No',
+    (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
+    B.ctmbr_mbr_id as 'Memebr_ID',
+    C.mem_first_name as 'First_Name',
+    C.mem_last_name as 'Last_Name',
+    S.SectorName as 'Sector_Name',    
+    L.lot_pay_amount as 'Inst_Amount',
+    A.tct_paid_amount as 'Paid_Amount',
+    CAST((L.lot_pay_amount - A.tct_paid_amount) as INT) as 'Balance',
+    AGC.mem_first_name + ' ' + AGC.mem_last_name as 'Agent_Name'
+    FROM TblChitTrans A
+    LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
+    LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
+    LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
+    LEFT JOIN TblSector S ON B.ctmbr_sector = S.sectorId
+    LEFT JOIN TblAgents AG ON S.sectorId = AG.agt_sectorId
+    LEFT JOIN TblMembers AGC ON AG.agt_memb_id = AGC.mem_id_no
+    
+) as due_list WHERE due_list.Balance = 0;
+GO
