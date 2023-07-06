@@ -17,6 +17,7 @@ CREATE TABLE TblMembers
 -- Delete rows from table '[TableName]' in schema '[dbo]'
 -- Select rows from a Table or View '[TableOrViewName]' in schema '[dbo]'
 SELECT * FROM [dbo].[TblMembers]
+DELETE from TblMembers
 
 --DROP VIEW VW_MEMBERS
 GO
@@ -84,6 +85,7 @@ GO
 
 
 DELETE FROM TblMembers
+/*
 INSERT INTO [dbo].[TblMembers]([mem_id_no], [mem_first_name], [mem_last_name],  [mem_sector],  [mem_mail], [mem_phone]) 
 VALUES 
 (1000, 'Gopinath', 'Mohanlal', 'TPR_001', 'gopinathmohanlal@example.com', '1234567890'),
@@ -133,4 +135,8 @@ VALUES
 (1044, 'Ramesh', 'Aju', 'TPR_001', 'rameshaju@example.com', '2345678901'),
 (1045, 'Sreejith', 'Tini', 'AKL_001', 'sreejithtini@example.com', '7654321098')
 
+*/
 
+SELECt * From TblMembers
+
+SELECT mem_first_name + ' ' + mem_last_name as 'Name', COUNT(mem_first_name) as 'Count' from TblMembers GROUP by mem_first_name, mem_last_name order by 'Count' DESC

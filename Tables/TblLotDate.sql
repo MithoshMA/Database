@@ -15,6 +15,8 @@ CREATE TABLE TblLotDateInfo
   FOREIGN KEY (lot_chity_id) REFERENCES TblChitInfo(chit_id),
 );
 
+DELETE from TblLotDateInfo
+
 SELECT * FROM [dbo].[TblLotDateInfo]
 
 drop view VIW_LOT_TAKEN_DATE
@@ -31,6 +33,7 @@ SELECT
 where 
 [lot_status]  = 0 */
 
+GO
 CREATE VIEW VIW_LOT_TAKEN_DATE AS
 SELECT 
   A.[lot_chity_id]	  as 'Chits ID',  
@@ -45,14 +48,33 @@ SELECT
   LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
 where 
 [lot_status]  = 0 
+GO
 
 
----UPDATE [dbo].[TblLotDateInfo]
+9010
+9107
+9350
+
+--TRUNCATE TABLE TblLotDateInfo
+SELECT * FROM TblLotDateInfo
+DECLARE @lotid INT
+SET @lotid = 4
+
+INSERT INTO TblChitTrans (tct_lot_id, tct_lot_no) 
+SELECT @lotid, ctmbr_lot_no FROM TblChitMemberInfo
+where ctmbr_lot_no NOT IN (
+SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
+JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no)
+UPDATE [dbo].[TblLotDateInfo]
 SET
   [lot_taken_status] = 1,
-  [lot_type] = 0
+  [lot_winner_no] = 9350,
+  [lot_type] = 1
   -- Add more columns and values here
-WHERE  lot_id_no = 3
+WHERE  lot_id_no = @lotid
+
+
+
 
 GO
 select * from VIW_LOT_TAKEN_DATE where [Chits ID] = 'Chit NO 2023/08-A'

@@ -6,21 +6,13 @@ drop TABLE TblChitMemberInfo
 DROP TABLE TblChitTrans
 drop TABLE TblLotDateInfo
 
+
+
 CREATE TABLE TblSector
 (
   sectorId   VARCHAR(50)    NOT NULL PRIMARY KEY ,
   SectorName VARCHAR(50)    UNIQUE,
   SectorInfo VARCHAR(50),  
-);
-
-CREATE TABLE TblAgents
-(
-    agt_id INT IDENTITY,
-    agt_sectorId   VARCHAR(50),
-    agt_memb_id   INT,
-    agt_status INT DEFAULT 0
-    FOREIGN KEY (agt_sectorId) REFERENCES  TblSector(sectorId),
-    FOREIGN KEY (agt_memb_id) REFERENCES  TblMembers(mem_id_no)
 );
 
 CREATE TABLE TblMembers
@@ -36,6 +28,15 @@ CREATE TABLE TblMembers
   CONSTRAINT pk_mem_id PRIMARY KEY (mem_no),
   CONSTRAINT pk_mem_id_no UNIQUE(mem_id_no),
   FOREIGN KEY (mem_sector) REFERENCES  TblSector(sectorId),
+);
+CREATE TABLE TblAgents
+(
+    agt_id INT IDENTITY,
+    agt_sectorId   VARCHAR(50),
+    agt_memb_id   INT,
+    agt_status INT DEFAULT 0
+    FOREIGN KEY (agt_sectorId) REFERENCES  TblSector(sectorId),
+    FOREIGN KEY (agt_memb_id) REFERENCES  TblMembers(mem_id_no)
 );
 
 CREATE TABLE TblChitInfo
@@ -71,19 +72,6 @@ CREATE TABLE TblChitMemberInfo
   FOREIGN KEY (ctmbr_sector) REFERENCES TblSector(sectorId),  
 );
 
-CREATE TABLE TblChitTrans
-(
-tct_transId INT IDENTITY,
-tct_mem_id INT,
-tct_lot_id INT NOT NULL,
-tct_lot_no INT,
-tct_amount_paid INT DEFAULT 0,
-tct_due_status SMALLINT DEFAULT 0,
-FOREIGN KEY (tct_lot_id) REFERENCES TblLotDateInfo(lot_id_no),
-FOREIGN KEY (tct_mem_id) REFERENCES TblMembers(mem_id_no),
-FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
-)
-
 CREATE TABLE TblLotDateInfo
 (
   [lot_id_no]	              INT IDENTITY,
@@ -99,3 +87,17 @@ CREATE TABLE TblLotDateInfo
   FOREIGN KEY (lot_winner_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no),  
   FOREIGN KEY (lot_chity_id) REFERENCES TblChitInfo(chit_id),
 );
+
+
+CREATE TABLE TblChitTrans
+(
+tct_transId INT IDENTITY,
+tct_lot_id INT NOT NULL,
+tct_lot_no INT,
+tct_agent_id INT,
+tct_paid_amount INT DEFAULT 0,
+tct_due_status SMALLINT DEFAULT 0,
+tct_paydate DATETIME,
+FOREIGN KEY (tct_lot_id) REFERENCES TblLotDateInfo(lot_id_no),
+FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
+)

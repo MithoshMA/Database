@@ -15,7 +15,9 @@ DROP VIEW RPT_VIEW_SECTOR_INFO
 GO
 CREATE VIEW RPT_VIEW_SECTOR_INFO
 AS
-SELECT * FROM TblSector
+SELECT sectorId as 'SectorID',
+SectorName as 'Sector_Name',
+SectorInfo as 'Sector_Info' FROM TblSector
 GO
 
 SELECT * FROM RPT_VIEW_SECTOR_INFO
@@ -25,3 +27,7 @@ insert into TblSector (sectorId, SectorName, SectorInfo) values ('TPR_001', 'Tho
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('AKL_001', 'Areekkal', 'Areekkal side from Narayanakkunnu');
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('NYK_001', 'Narayanakunnu', 'Narayanakkunnu from Areekkal side to Kalathingal');
 insert into TblSector (sectorId, SectorName, SectorInfo) values ('KAK_001', 'Kallaramkettil', 'Kallaramkettu from Areekkal side to Kalathingal');
+
+update TblSector set SectorInfo = 'qqq' where sectorId = ''
+
+Delete from  TblSector where sectorId = ''

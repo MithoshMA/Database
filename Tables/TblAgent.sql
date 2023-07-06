@@ -13,10 +13,10 @@ SELECT * FROM TblAgents
 truncate table TblAgents
 INSERT INTO TblAgents  (agt_sectorId, agt_memb_id)
 VALUES
-('TPR_001', 1045),
-('AKL_001', 1044),
-('NYK_001', 1043),
-('KAK_001', 1042)
+('TPR_001', 10404),
+('AKL_001', 10405),
+('NYK_001', 10406),
+('KAK_001', 10407)
 
 
 SELECT M.mem_first_name + ' ' + mem_last_name,

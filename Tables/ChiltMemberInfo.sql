@@ -75,3 +75,22 @@ update TblChitMemberInfo set ctmbr_win_sts = 0
 
 update TblChitMemberInfo set ctmbr_lot_no = ctmbr_lot_no * 10
 
+SELECT * from TblChitMemberInfo order by ctmbr_lot_no
+INSERT INTO TblChitMemberInfo (ctmbr_mbr_id, ctmbr_lot_no, ctmbr_sector) 
+select mem_id_no, mem_id_no -999, 
+CASE
+WHEN (mem_id_no % 4) = 0 then 'AKL_001'
+WHEN (mem_id_no % 4) = 1 then 'KAK_001'
+WHEN (mem_id_no % 4) = 2 then 'NYK_001'
+WHEN (mem_id_no % 4) = 3 then 'TPR_001'
+ELSE 'TPR_001'
+END as 'Sector'
+from TblMembers
+
+
+SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = N'TblChitMemberInfo'
+
+SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
+JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no
