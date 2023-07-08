@@ -67,3 +67,5 @@ LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
 LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
 LEFT JOIN TblSector S ON B.ctmbr_sector = S.sectorId
 LEFT JOIN TblMembers AGC ON tct_agent_id = AGC.mem_id_no
+
+Select tct_agent_id, COUNT(tct_agent_id) from TblChitTrans group by tct_agent_id

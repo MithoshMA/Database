@@ -58,12 +58,15 @@ GO
 
 SELECT * FROM TblAgent
 
+TRUNCATE TABLE TblAgent
 INSERT INTO TblAgent
-(agt_sectorId, agt_first_name, agt_last_name)
-VALUES ('TPR_001', 'Shimnesh', 'TP'),
- ('AKL_002', 'Sunil Kumar', 'A'),
-  ('AKL_001', 'Sunil Kumar', 'A'),
- ( 'NYK_001', 'Abas', 'NK'),
- ( 'KAK_001', 'Gireesh', 'KK')
+(agt_no, agt_sectorId, agt_first_name, agt_last_name)
+VALUES (1, 'TPR_001', 'Shimnesh', 'TP'),
+ (2, 'AKL_002', 'Sunil Kumar', 'A'),
+(3,  'AKL_001', 'Sajeesh', 'K'),
+ (4, 'NYK_001', 'Abas', 'NK'),
+ (5, 'KAK_001', 'Gireesh', 'KK'),
+ (6, 'KAK_001', 'Suresh', 'KK')
 
+SELECT * FROM RPT_VW_AGENTS
 

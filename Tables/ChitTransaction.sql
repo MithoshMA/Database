@@ -344,10 +344,11 @@ SELECT * FROM
     LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
     LEFT JOIN TblSector S ON B.ctmbr_sector = S.sectorId
     LEFT JOIN TblAgents AG ON S.sectorId = AG.agt_sectorId
-    JOIN TblMembers AGC ON AG.agt_memb_id = AGC.mem_id_no
+    RIGHT JOIN TblMembers AGC ON AG.agt_memb_id = AGC.mem_id_no
 ) as due_list WHERE due_list.Balance = 0;
 GO
 
 select * from RPT_VIEW_CHIT_TRANS_DUE
 select * from RPT_VIEW_CHIT_TRANS
 select * from RPT_VIEW_CHIT_TRANS_NO_DUE
+
