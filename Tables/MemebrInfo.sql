@@ -40,8 +40,7 @@ SELECT
 (Select LEFT([mem_mail], 18) ) as 'Mail_ID',
 [mem_phone]     as 'Contact'
 FROM TblMembers where mem_status = 0;
-
-
+GO
 
 select * from VW_MEMBERS
 
@@ -84,7 +83,7 @@ WHERE /* add search conditions here */
 GO
 
 
-DELETE FROM TblMembers
+SELECT * FROM TblMembers
 /*
 INSERT INTO [dbo].[TblMembers]([mem_id_no], [mem_first_name], [mem_last_name],  [mem_sector],  [mem_mail], [mem_phone]) 
 VALUES 

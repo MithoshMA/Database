@@ -37,6 +37,7 @@ CREATE TABLE TblAgent
     agt_sectorId   VARCHAR(50),
     agt_first_name   NVARCHAR(50),
     agt_last_name   NVARCHAR(50),
+    agt_phone_no   NVARCHAR(20),
     agt_status INT DEFAULT 0
     FOREIGN KEY (agt_sectorId) REFERENCES  TblSector(sectorId),
 );
@@ -51,7 +52,8 @@ A.agt_id,
 A.agt_no as 'Agent No',
 A.agt_first_name as 'First_Name',
 A.agt_last_name as 'Last_Name',
-S.SectorName as 'Sector'
+S.SectorName as 'Sector',
+A.agt_phone_no as 'Phone'
 FROM TblAgent A
 LEFT JOIN TblSector S ON A.agt_sectorId = S.sectorId
 GO
@@ -70,3 +72,9 @@ VALUES (1, 'TPR_001', 'Shimnesh', 'TP'),
 
 SELECT * FROM RPT_VW_AGENTS
 
+SELECT COUNT(agt_no) FROM TblAgent where agt_no = 1
+TRUNCATE TABLE TblAgent
+
+INSERT INTO TblAgent
+(agt_no, agt_sectorId, agt_first_name, agt_last_name)
+VALUES (10, null, 'Shimnesh', 'TP')

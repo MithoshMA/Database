@@ -1,5 +1,3 @@
-
-
 --Sector details
 
 drop table TblSector
@@ -15,7 +13,7 @@ DROP VIEW RPT_VIEW_SECTOR_INFO
 GO
 CREATE VIEW RPT_VIEW_SECTOR_INFO
 AS
-SELECT sectorId as 'SectorID',
+SELECT SectorId as 'SectorID',
 SectorName as 'Sector_Name',
 SectorInfo as 'Sector_Info' FROM TblSector
 GO

@@ -1,16 +1,21 @@
-drop table TblSector
-DROP table TblAgents
-drop TABLE TblMembers
+SELECT name as Foreign_Key
+,schema_name(schema_id) as Schema_Name
+,object_name(parent_object_id) as Table_Name
+FROM sys.foreign_keys
+WHERE Referenced_object_id = object_id('dbo.TblSector','U');
+
 drop TABLE TblChitInfo
 drop TABLE TblChitMemberInfo
 DROP TABLE TblChitTrans
 drop TABLE TblLotDateInfo
-
+drop TABLE TblMembers
+DROP table TblAgent
+drop table TblSector
 
 
 CREATE TABLE TblSector
 (
-  sectorId   VARCHAR(50)    NOT NULL PRIMARY KEY ,
+  SectorId   VARCHAR(50)    NOT NULL PRIMARY KEY ,
   SectorName VARCHAR(50)    UNIQUE,
   SectorInfo VARCHAR(50),  
 );
@@ -29,16 +34,22 @@ CREATE TABLE TblMembers
   CONSTRAINT pk_mem_id_no UNIQUE(mem_id_no),
   FOREIGN KEY (mem_sector) REFERENCES  TblSector(sectorId),
 );
-CREATE TABLE TblAgents
+GO
+CREATE TABLE TblAgent
 (
     agt_id INT IDENTITY,
+    agt_no INT,
     agt_sectorId   VARCHAR(50),
-    agt_memb_id   INT,
+    agt_first_name   NVARCHAR(50),
+    agt_last_name   NVARCHAR(50),
+    agt_phone_no   NVARCHAR(20),
     agt_status INT DEFAULT 0
     FOREIGN KEY (agt_sectorId) REFERENCES  TblSector(sectorId),
-    FOREIGN KEY (agt_memb_id) REFERENCES  TblMembers(mem_id_no)
 );
 
+GO
+
+GO
 CREATE TABLE TblChitInfo
 (
   [chit_no]	                INT IDENTITY,
