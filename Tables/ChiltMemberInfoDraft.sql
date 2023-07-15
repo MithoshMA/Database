@@ -58,3 +58,26 @@ SELECT * FROM TblChitMemberDraft
 TRUNCATE TABLE TblChitMemberDraft
 
 EXECUTE UpdateTblChitMemberDraft 100,1000
+
+SELECT * FROM TblChitMemberInfo
+
+SELECT * FROM TblChitMemberDraft
+
+SELECT * from TblMembers
+
+
+SELECT D.ctmbr_chit_no, D.ctmbr_mbr_id, M.mem_sector FROM TblChitMemberDraft D
+JOIN TblMembers M ON D.ctmbr_mbr_id = M.mem_id_no
+
+DELETE from TblChitMemberInfo
+
+GO
+DROP PROCEDURE CopyFromDraftToChitMember
+GO
+CREATE PROCEDURE CopyFromDraftToChitMember
+AS
+DELETE FROM TblChitMemberInfo
+INSERT INTO TblChitMemberInfo (ctmbr_lot_no, ctmbr_mbr_id, ctmbr_sector)
+SELECT D.ctmbr_chit_no, D.ctmbr_mbr_id, M.mem_sector FROM TblChitMemberDraft D
+JOIN TblMembers M ON D.ctmbr_mbr_id = M.mem_id_no
+---TRUNCATE TABLE TblChitMemberDraft
