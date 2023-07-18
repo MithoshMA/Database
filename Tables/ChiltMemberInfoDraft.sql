@@ -25,7 +25,7 @@ M.mem_last_name as 'Last_Name'
  LEFT JOIN TblMembers M ON C.ctmbr_mbr_id = M.mem_id_no
 GO
 
- SELECT * FROM RPT_VW_CHIT_MEM_DRAFT
+ SELECT * FROM RPT_VW_CHIT_MEM_DRAFT ORDER BY [Chit_No]
  
 
 DECLARE @numRows int,@i int
@@ -61,7 +61,7 @@ EXECUTE UpdateTblChitMemberDraft 100,1000
 
 SELECT * FROM TblChitMemberInfo
 
-SELECT * FROM TblChitMemberDraft
+  SELECT * FROM TblChitMemberDraft
 
 SELECT * from TblMembers
 

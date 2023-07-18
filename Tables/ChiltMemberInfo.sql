@@ -26,7 +26,7 @@ CREATE VIEW VW_CHIT_MEMBER_INFO
   SELECT 
   A.ctmbr_lot_no    as 'Lot No',
   B.mem_first_name as 'First Name',
-  B.mem_last_name as 'Second Name',
+  B.mem_last_name as 'Last Name',
   B.mem_id_no as 'Member ID',
   (SELECT SectorName from TblSector where TblSector.sectorId = A.ctmbr_sector) as 'Sector',
   A.ctmbr_win_sts   as 'Win staus',
@@ -36,7 +36,28 @@ CREATE VIEW VW_CHIT_MEMBER_INFO
 )
 GO
 
-select * from VW_CHIT_MEMBER_INFO
+SELECT * FROM RPT_VW_CHIT_MEMBER_INFO
+
+--DROP VIEW RPT_VW_CHIT_MEMBER_INFO
+--https://www.w3schools.com/mysql/mysql_join.asp
+GO
+CREATE VIEW RPT_VW_CHIT_MEMBER_INFO
+as
+  SELECT 
+  A.ctmbr_lot_no    as 'Lot_No',
+  B.mem_first_name as 'First_Name',
+  B.mem_last_name as 'Last_Name',
+  B.mem_id_no as 'Member_ID',
+  (SELECT SectorName from TblSector where TblSector.sectorId = A.ctmbr_sector) as 'Sector',
+  A.ctmbr_win_sts   as 'Win_Staus',
+  A.ctmbr_due_count as 'Due_Count'
+  FROM TblChitMemberInfo A
+  LEFT JOIN TblMembers B ON A.ctmbr_mbr_id = B.mem_id_no
+GO
+
+SELECT * from VW_CHIT_MEMBER_INFO
+SELECT * from RPT_VW_CHIT_MEMBER_INFO
+
 delete from TblChitMemberInfo
 -- Insert rows into table 'TableName' in schema '[dbo]'
 INSERT INTO [dbo].[TblChitMemberInfo]
@@ -92,5 +113,34 @@ SELECT *
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_NAME = N'TblChitMemberInfo'
 
+SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = N'RPT_VW_CHIT_MEMBER_INFO' 
+
 SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
 JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no
+
+SELECT CASE
+WHEN Lot_No % 2 = 0 then NULL ELSE Lot_No END as 'Lot_No' from RPT_VW_CHIT_MEMBER_INFO 
+
+--DROP VIEW RPT_VW_CHIT_MEMBER_INFO
+--https://www.w3schools.com/mysql/mysql_join.asp
+GO
+CREATE VIEW RPT_VW_CHIT_MEMBER_INFO
+as
+
+  SELECT 
+  A.ctmbr_lot_no    as 'Lot_No',
+  B.mem_first_name as 'First_Name',
+  B.mem_last_name as 'Last_Name',
+  B.mem_id_no as 'Member_ID',
+  T.SectorName as 'Sector',  
+  CASE
+        WHEN A.ctmbr_win_sts = 0 
+            THEN NULL 
+            ELSE 'YES' 
+　END as 'Win_Staus' ,
+  A.ctmbr_due_count as 'Due_Count'
+  FROM TblChitMemberInfo A
+  LEFT JOIN TblMembers B ON A.ctmbr_mbr_id = B.mem_id_no
+  LEFT JOIN TblSector T ON T.sectorId = A.ctmbr_sector

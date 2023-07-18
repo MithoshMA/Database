@@ -2,7 +2,7 @@ SELECT name as Foreign_Key
 ,schema_name(schema_id) as Schema_Name
 ,object_name(parent_object_id) as Table_Name
 FROM sys.foreign_keys
-WHERE Referenced_object_id = object_id('dbo.TblSector','U');
+WHERE Referenced_object_id = object_id('dbo.TblChitTrans','U');
 
 drop TABLE TblChitInfo
 drop TABLE TblChitMemberInfo
@@ -83,6 +83,7 @@ CREATE TABLE TblChitMemberInfo
   FOREIGN KEY (ctmbr_sector) REFERENCES TblSector(sectorId),  
 );
 
+GO
 CREATE TABLE TblLotDateInfo
 (
   [lot_id_no]	              INT IDENTITY,
@@ -90,15 +91,16 @@ CREATE TABLE TblLotDateInfo
   [lot_date]                DATETIME,
   [lot_number]              INT,
   [lot_type]                SMALLINT DEFAULT 1, -- 1 normal, 0 muthal
-  [lot_taken_status]        SMALLINT DEFAULT 0, -- 1 Taken, 0 Not taken
-  [lot_winner_no]           INT,
-  [lot_pay_amount]          INT DEFAULT 0,
+  [lot_taken_status]        SMALLINT DEFAULT 2, -- 1 Closed, 0 Not taken, 2 running
+  [lot_winner_no]           INT  DEFAULT NULL,
+  [lot_inst_amount]         INT DEFAULT 0,
+  [lot_prize_money]          INT DEFAULT NULL,
   [lot_status]            SMALLINT DEFAULT 0,
   CONSTRAINT pk_lotid_no PRIMARY KEY (lot_id_no),
   FOREIGN KEY (lot_winner_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no),  
   FOREIGN KEY (lot_chity_id) REFERENCES TblChitInfo(chit_id),
 );
-
+GO
 
 CREATE TABLE TblChitTrans
 (

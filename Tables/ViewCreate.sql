@@ -79,25 +79,46 @@ SELECT
   LEFT JOIN TblMembers B ON A.ctmbr_mbr_id = B.mem_id_no
 GO
 
-/* 6 TblLotDateInfo */
-DROP VIEW VIW_LOT_TAKEN_DATE
 GO
-CREATE VIEW VIW_LOT_TAKEN_DATE AS
+DROP VIEW RPT_VW_CHIT_MEMBER_INFO
+GO
+CREATE VIEW RPT_VW_CHIT_MEMBER_INFO
+as
+  SELECT 
+  A.ctmbr_lot_no    as 'Lot_No',
+  B.mem_first_name as 'First_Name',
+  B.mem_last_name as 'Last_Name',
+  B.mem_id_no as 'Member_ID',
+  T.SectorName as 'Sector',  
+  CASE
+        WHEN A.ctmbr_win_sts = 0 
+            THEN NULL 
+            ELSE 'YES' 
+  END as 'Win_Staus' ,
+  A.ctmbr_due_count as 'Due_Count'
+  FROM TblChitMemberInfo A
+  LEFT JOIN TblMembers B ON A.ctmbr_mbr_id = B.mem_id_no
+  LEFT JOIN TblSector T ON T.sectorId = A.ctmbr_sector
+GO
+
+/* 6 TblLotDateInfo */
+GO
+DROP VIEW RPT_VIW_LOT_TAKEN_DATE
+GO
+CREATE VIEW RPT_VIW_LOT_TAKEN_DATE AS
 SELECT 
-  A.[lot_chity_id]	  as 'Chits ID',  
+  A.[lot_chity_id]	  as 'Chit_ID',  
   [lot_number]   as 'Installment',
-  (select convert(varchar, [lot_date] , 1)) as 'Date',
-  CASE WHEN [lot_type] = 1 THEN 'Normal' ELSE 'Muthal' END AS 'Chit Type',
-  [lot_taken_status] as 'Status',
+  (select convert(varchar, [lot_date] , 1)) as 'Date',  
+  A.lot_winner_no as 'Win_Lot_No',
   C.mem_first_name +' ' + C.mem_last_name  as 'Winner',
-  [lot_pay_amount]  as 'Amount'
+  [lot_inst_amount]  as 'Amount',
+  [lot_prize_money]  as 'Prize_Money',
+  CASE WHEN [lot_taken_status] = 2 THEN 'Running' ELSE 'Closed' END as 'Status'
   from TblLotDateInfo A
   LEFT JOIN TblChitMemberInfo B ON A.lot_winner_no = B.ctmbr_lot_no
   LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
-where 
-[lot_status]  = 0 
 GO
-
 /* 6 TblChitTrans */
 
 -- VIEW 

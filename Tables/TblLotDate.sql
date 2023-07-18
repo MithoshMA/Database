@@ -1,4 +1,6 @@
-drop TABLE TblLotDateInfo
+GO
+DROP TABLE TblLotDateInfo
+GO
 CREATE TABLE TblLotDateInfo
 (
   [lot_id_no]	              INT IDENTITY,
@@ -6,16 +8,18 @@ CREATE TABLE TblLotDateInfo
   [lot_date]                DATETIME,
   [lot_number]              INT,
   [lot_type]                SMALLINT DEFAULT 1, -- 1 normal, 0 muthal
-  [lot_taken_status]        SMALLINT DEFAULT 0, -- 1 Taken, 0 Not taken
-  [lot_winner_no]           INT,
-  [lot_pay_amount]          INT DEFAULT 0,
-  [lot_status]            SMALLINT DEFAULT 0,
+  [lot_taken_status]        SMALLINT DEFAULT 2, -- 1 Closed, 0 Not taken, 2 running
+  [lot_winner_no]           INT  DEFAULT NULL, -- Lot id
+  [lot_inst_amount]         INT DEFAULT 0,
+  [lot_prize_money]         INT DEFAULT NULL,
+  [lot_status]              SMALLINT DEFAULT 0,
   CONSTRAINT pk_lotid_no PRIMARY KEY (lot_id_no),
   FOREIGN KEY (lot_winner_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no),  
   FOREIGN KEY (lot_chity_id) REFERENCES TblChitInfo(chit_id),
 );
+GO
 
-DELETE from TblLotDateInfo
+--DELETE from TblLotDateInfo
 
 SELECT * FROM [dbo].[TblLotDateInfo]
 
@@ -34,23 +38,26 @@ where
 [lot_status]  = 0 */
 
 GO
-CREATE VIEW VIW_LOT_TAKEN_DATE AS
+DROP VIEW RPT_VIW_LOT_TAKEN_DATE
+GO
+CREATE VIEW RPT_VIW_LOT_TAKEN_DATE AS
 SELECT 
-  A.[lot_chity_id]	  as 'Chits ID',  
+  A.[lot_chity_id]	  as 'Chit_ID',  
   [lot_number]   as 'Installment',
-  (select convert(varchar, [lot_date] , 1)) as 'Date',
-  CASE WHEN [lot_type] = 1 THEN 'Normal' ELSE 'Muthal' END AS 'Chit Type',
-  [lot_taken_status] as 'Status',
+  (select convert(varchar, [lot_date] , 1)) as 'Date',  
+  A.lot_winner_no as 'Win_Lot_No',
   C.mem_first_name +' ' + C.mem_last_name  as 'Winner',
-  [lot_pay_amount]  as 'Amount'
+  [lot_inst_amount]  as 'Amount',
+  [lot_prize_money]  as 'Prize_Money',
+  CASE WHEN [lot_taken_status] = 2 THEN 'Running' ELSE 'Closed' END as 'Status'
   from TblLotDateInfo A
   LEFT JOIN TblChitMemberInfo B ON A.lot_winner_no = B.ctmbr_lot_no
   LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
-where 
-[lot_status]  = 0 
 GO
 
+SELECT * from RPT_VIW_LOT_TAKEN_DATE
 
+DELETE from TblLotDateInfo where lot_winner_no = null
 9010
 9107
 9350
@@ -73,8 +80,17 @@ SET
   -- Add more columns and values here
 WHERE  lot_id_no = @lotid
 
+UPDATE [dbo].[TblLotDateInfo]
+SET
+  [lot_winner_no] = 1005
+WHERE  lot_id_no <> 1
 
 
+INSERT INTO [dbo].[TblLotDateInfo]
+( -- Columns to insert data into
+ [lot_chity_id], [lot_number], [lot_date], [lot_pay_amount]
+)
+VALUES
 
 GO
 select * from VIW_LOT_TAKEN_DATE where [Chits ID] = 'Chit NO 2023/08-A'
@@ -82,7 +98,7 @@ select * from VIW_LOT_TAKEN_DATE where [Chits ID] = 'Chit NO 2023/08-A'
 -- Insert rows into table 'TableName' in schema '[dbo]'
 INSERT INTO [dbo].[TblLotDateInfo]
 ( -- Columns to insert data into
- [lot_chity_id], [lot_number], [lot_date], [lot_pay_amount]
+ [lot_chity_id], [lot_number], [lot_date], [lot_inst_amount]
 )
 VALUES
 ( 'Chit NO 2023/08-A', 01, '2023-08-01', 1000),
