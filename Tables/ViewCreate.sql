@@ -62,6 +62,23 @@ SELECT
   where chit_status = 0;
 GO
 
+/* 5 TblChitMemberInfoDraft */
+GO
+DROP VIEW RPT_VW_CHIT_MEM_DRAFT
+GO
+CREATE VIEW RPT_VW_CHIT_MEM_DRAFT
+AS
+SELECT
+ctmbr_chit_no as 'Chit_No',
+ctmbr_mbr_id as 'Member_ID',
+M.mem_first_name as 'First_Name',
+M.mem_last_name as 'Last_Name'
+ FROM TblChitMemberDraft C
+ LEFT JOIN TblMembers M ON C.ctmbr_mbr_id = M.mem_id_no
+GO
+
+
+
 /* 5 TblChitMemberInfo */
 DROP VIEW VW_CHIT_MEMBER_INFO
 GO
@@ -108,13 +125,13 @@ GO
 CREATE VIEW RPT_VIW_LOT_TAKEN_DATE AS
 SELECT 
   A.[lot_chity_id]	  as 'Chit_ID',  
-  [lot_number]   as 'Installment',
-  (select convert(varchar, [lot_date] , 1)) as 'Date',  
+  [lot_term_no]   as 'Installment',
+  (select convert(varchar, [lot_date] , 34)) as 'Date',  
   A.lot_winner_no as 'Win_Lot_No',
   C.mem_first_name +' ' + C.mem_last_name  as 'Winner',
   [lot_inst_amount]  as 'Amount',
   [lot_prize_money]  as 'Prize_Money',
-  CASE WHEN [lot_taken_status] = 2 THEN 'Running' ELSE 'Closed' END as 'Status'
+  CASE WHEN [lot_taken_status] = 1 THEN 'Active' ELSE 'Closed' END as 'Status'
   from TblLotDateInfo A
   LEFT JOIN TblChitMemberInfo B ON A.lot_winner_no = B.ctmbr_lot_no
   LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
@@ -127,24 +144,24 @@ GO
 CREATE VIEW RPT_VIEW_CHIT_TRANS 
 AS
 SELECT
-L.lot_number as 'Installment',
-A.tct_lot_no as 'Lot_No',
+A.tct_term_no as 'Term Number' ,
+A.tct_lot_no as 'Lot_no',
 (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
-B.ctmbr_mbr_id as 'Memebr_ID',
-C.mem_first_name as 'First_Name',
-C.mem_last_name as 'Last_Name',
+C.ctmbr_mbr_id as 'Memebr_ID',
+M.mem_first_name as 'First_Name',
+M.mem_last_name as 'Last_Name',
 S.SectorName as 'Sector_Name',
-L.lot_pay_amount as 'Inst_Amount',
-A.tct_paid_amount as 'Paid_Amount',
-CAST((L.lot_pay_amount -A.tct_paid_amount) as INT) as 'Balance',
-AG.agt_first_name as 'Agent Name'
---AGC.mem_first_name + ' ' + AGC.mem_last_name as 'Agent_Name'
+L.lot_inst_amount as 'Inst_Amount',
+A.tct_paid_amount  as 'Paid_Amount',
+CAST((L.lot_inst_amount -A.tct_paid_amount) as INT) as 'Balance',
+Ag.agt_first_name + ' ' + Ag.agt_last_name as 'Agent_Name'
 FROM TblChitTrans A
-LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
-LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
-LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
-LEFT JOIN TblSector S ON B.ctmbr_sector = S.SectorId
-LEFT JOIN TblAgent AG ON A.tct_agent_id = AG.agt_no
+LEFT JOIN TblChitMemberInfo C ON A.tct_lot_no = C.ctmbr_lot_no
+LEFT JOIN TblMembers M ON C.ctmbr_mbr_id = M.mem_id_no
+LEFT JOIN TblLotDateInfo L ON A.lot_chity_id = L.lot_chity_id and A.tct_term_no = L.lot_term_no
+LEFT JOIN TblSector S ON C.ctmbr_sector = S.sectorId
+LEFT JOIN TblAgent AG ON C.ctmbr_sector = AG.agt_sectorId
+--LEFT JOIN TblAgent AG ON A.tct_agent_id = AG.agt_id TODO - Optimize
 GO
 
 /* TODO need to OPTIMIZE */

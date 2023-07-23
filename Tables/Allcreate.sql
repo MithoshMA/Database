@@ -2,12 +2,13 @@ SELECT name as Foreign_Key
 ,schema_name(schema_id) as Schema_Name
 ,object_name(parent_object_id) as Table_Name
 FROM sys.foreign_keys
-WHERE Referenced_object_id = object_id('dbo.TblChitTrans','U');
+WHERE Referenced_object_id = object_id('dbo.TblLotDateInfo','U');
 
 drop TABLE TblChitInfo
-drop TABLE TblChitMemberInfo
 DROP TABLE TblChitTrans
 drop TABLE TblLotDateInfo
+drop TABLE TblChitMemberInfo
+
 drop TABLE TblMembers
 DROP table TblAgent
 drop table TblSector
@@ -89,28 +90,48 @@ CREATE TABLE TblLotDateInfo
   [lot_id_no]	              INT IDENTITY,
   [lot_chity_id]	          VARCHAR(20) DEFAULT '1',
   [lot_date]                DATETIME,
-  [lot_number]              INT,
+  [lot_term_no]             INT,
   [lot_type]                SMALLINT DEFAULT 1, -- 1 normal, 0 muthal
-  [lot_taken_status]        SMALLINT DEFAULT 2, -- 1 Closed, 0 Not taken, 2 running
+  [lot_taken_status]        SMALLINT DEFAULT 1, -- 1 Active, 0 Closed
   [lot_winner_no]           INT  DEFAULT NULL,
   [lot_inst_amount]         INT DEFAULT 0,
   [lot_prize_money]          INT DEFAULT NULL,
   [lot_status]            SMALLINT DEFAULT 0,
-  CONSTRAINT pk_lotid_no PRIMARY KEY (lot_id_no),
+  --CONSTRAINT pk_lotid_no PRIMARY KEY (lot_id_no),
+  CONSTRAINT un_chit_term PRIMARY KEY (lot_chity_id, lot_term_no),
   FOREIGN KEY (lot_winner_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no),  
   FOREIGN KEY (lot_chity_id) REFERENCES TblChitInfo(chit_id),
 );
 GO
 
+
+GO
 CREATE TABLE TblChitTrans
 (
 tct_transId INT IDENTITY,
-tct_lot_id INT NOT NULL,
+[lot_chity_id] VARCHAR(20),
+tct_term_no INT NOT NULL,
 tct_lot_no INT,
 tct_agent_id INT,
 tct_paid_amount INT DEFAULT 0,
 tct_due_status SMALLINT DEFAULT 0,
 tct_paydate DATETIME,
-FOREIGN KEY (tct_lot_id) REFERENCES TblLotDateInfo(lot_id_no),
+FOREIGN KEY (lot_chity_id, tct_term_no) REFERENCES TblLotDateInfo(lot_chity_id, lot_term_no),
 FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
 )
+
+
+SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = N'TblChitTrans'
+
+SELECT COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'TblLotDateInfo'
+
+SELECT A.TABLE_NAME, COLUMN_NAME, DATA_TYPE, B.CONSTRAINT_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS A
+LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS B ON A.TABLE_NAME = B.TABLE_NAME
+WHERE A.TABLE_NAME = 'TblLotDateInfo'
+
+SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_NAME = 'TblLotDateInfo' AND CONSTRAINT_TYPE = 'constraint_type';

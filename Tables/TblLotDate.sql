@@ -6,9 +6,9 @@ CREATE TABLE TblLotDateInfo
   [lot_id_no]	              INT IDENTITY,
   [lot_chity_id]	          VARCHAR(20) DEFAULT '1',
   [lot_date]                DATETIME,
-  [lot_number]              INT,
+  [lot_number]              INT,  -- Installlment or term
   [lot_type]                SMALLINT DEFAULT 1, -- 1 normal, 0 muthal
-  [lot_taken_status]        SMALLINT DEFAULT 2, -- 1 Closed, 0 Not taken, 2 running
+  [lot_taken_status]        SMALLINT DEFAULT 1, -- 1 Active, 0 Closed
   [lot_winner_no]           INT  DEFAULT NULL, -- Lot id
   [lot_inst_amount]         INT DEFAULT 0,
   [lot_prize_money]         INT DEFAULT NULL,
@@ -56,13 +56,16 @@ SELECT
 GO
 
 SELECT * from RPT_VIW_LOT_TAKEN_DATE
-
-DELETE from TblLotDateInfo where lot_winner_no = null
+SELECT * from TblLotDateInfo
+UPDATE [dbo].[TblLotDateInfo] SET [lot_prize_money] = 12000 where lot_id_no = 2
+UPDATE [dbo].[TblLotDateInfo] SET [lot_winner_no] = 1004 where lot_number = 2
+DELETE from TblLotDateInfo where lot_winner_no is NULL
 9010
 9107
 9350
 
 --TRUNCATE TABLE TblLotDateInfo
+
 SELECT * FROM TblLotDateInfo
 DECLARE @lotid INT
 SET @lotid = 4
@@ -72,6 +75,9 @@ SELECT @lotid, ctmbr_lot_no FROM TblChitMemberInfo
 where ctmbr_lot_no NOT IN (
 SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
 JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no)
+
+
+
 UPDATE [dbo].[TblLotDateInfo]
 SET
   [lot_taken_status] = 1,
@@ -93,7 +99,7 @@ INSERT INTO [dbo].[TblLotDateInfo]
 VALUES
 
 GO
-select * from VIW_LOT_TAKEN_DATE where [Chits ID] = 'Chit NO 2023/08-A'
+select * from RPT_VIW_LOT_TAKEN_DATE where [Chit_ID] = 'Chit NO 2023/08-A'
 
 -- Insert rows into table 'TableName' in schema '[dbo]'
 INSERT INTO [dbo].[TblLotDateInfo]
@@ -141,3 +147,12 @@ VALUES
 
 Select * from TblLotDateInfo
 
+
+DECLARE @lotid INT
+SET @lotid = 4
+
+INSERT INTO TblChitTrans (tct_lot_id, tct_lot_no) 
+SELECT @lotid, ctmbr_lot_no FROM TblChitMemberInfo
+where ctmbr_lot_no NOT IN (
+SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
+JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no)

@@ -5,18 +5,20 @@ Participant ID
 Contribution	
 Amount Paid	Balance
 */
-
+GO
 DROP table TblChitTrans
+GO
 CREATE TABLE TblChitTrans
 (
 tct_transId INT IDENTITY,
-tct_lot_id INT NOT NULL,
+lot_chity_id VARCHAR(20),
+tct_term_no INT NOT NULL,
 tct_lot_no INT,
 tct_agent_id INT,
 tct_paid_amount INT DEFAULT 0,
 tct_due_status SMALLINT DEFAULT 0,
 tct_paydate DATETIME,
-FOREIGN KEY (tct_lot_id) REFERENCES TblLotDateInfo(lot_id_no),
+FOREIGN KEY (lot_chity_id, tct_term_no) REFERENCES TblLotDateInfo(lot_chity_id, lot_term_no),
 FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
 )
 
@@ -60,9 +62,9 @@ B.ctmbr_mbr_id as 'Memebr_ID',
 C.mem_first_name as 'First_Name',
 C.mem_last_name as 'Last_Name',
 S.SectorName as 'Sector_Name',
-L.lot_pay_amount as 'Inst_Amount',
+L.lot_inst_amount as 'Inst_Amount',
 A.tct_paid_amount as 'Paid_Amount',
-CAST((L.lot_pay_amount -A.tct_paid_amount) as INT) as 'Balance'
+CAST((L.lot_inst_amount -A.tct_paid_amount) as INT) as 'Balance'
 FROM TblChitTrans A
 LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
 LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
@@ -86,9 +88,9 @@ AS
     C.mem_first_name as 'First_Name',
     C.mem_last_name as 'Last_Name',
     S.SectorName as 'Sector_Name',
-    L.lot_pay_amount as 'Inst_Amount',
+    L.lot_inst_amount as 'Inst_Amount',
     A.tct_paid_amount as 'Paid_Amount',
-    CAST((L.lot_pay_amount - A.tct_paid_amount) as INT) as 'Balance'
+    CAST((L.lot_inst_amount - A.tct_paid_amount) as INT) as 'Balance'
     FROM TblChitTrans A
     LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
     LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
@@ -112,9 +114,9 @@ SELECT * FROM
     C.mem_first_name as 'First_Name',
     C.mem_last_name as 'Last_Name',
     S.SectorName as 'Sector_Name',
-    L.lot_pay_amount as 'Inst_Amount',
+    L.lot_inst_amount as 'Inst_Amount',
     A.tct_paid_amount as 'Paid_Amount',
-    CAST((L.lot_pay_amount - A.tct_paid_amount) as INT) as 'Balance'
+    CAST((L.lot_inst_amount - A.tct_paid_amount) as INT) as 'Balance'
     FROM TblChitTrans A
     LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
     LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
@@ -239,116 +241,9 @@ SELECT tct_lot_id, L.lot_number From TblChitTrans C
 LEFT JOIN TblLotDateInfo L ON C.tct_lot_id = L.lot_id_no
 
 
+SELECT * From TblChitTrans C
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- VIEW 
-DROP VIEW RPT_VIEW_CHIT_TRANS 
-GO
-CREATE VIEW RPT_VIEW_CHIT_TRANS 
-AS
-SELECT
-L.lot_number as 'Installment',
-A.tct_lot_no as 'Lot_No',
-(select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
-B.ctmbr_mbr_id as 'Memebr_ID',
-C.mem_first_name as 'First_Name',
-C.mem_last_name as 'Last_Name',
-S.SectorName as 'Sector_Name',
-L.lot_pay_amount as 'Inst_Amount',
-A.tct_paid_amount as 'Paid_Amount',
-CAST((L.lot_pay_amount -A.tct_paid_amount) as INT) as 'Balance',
-AGC.mem_first_name + ' ' + AGC.mem_last_name as 'Agent_Name'
-FROM TblChitTrans A
-LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
-LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
-LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
-LEFT JOIN TblSector S ON B.ctmbr_sector = S.sectorId
-LEFT JOIN TblAgents AG ON S.sectorId = AG.agt_sectorId
-JOIN TblMembers AGC ON AG.agt_memb_id = AGC.mem_id_no
-GO
-
-/* TODO need to OPTIMIZE */
-GO
-DROP VIEW RPT_VIEW_CHIT_TRANS_DUE
-GO
-CREATE VIEW RPT_VIEW_CHIT_TRANS_DUE
-AS
-    SELECT * FROM 
-    (
-    SELECT
-    L.lot_number as 'Installment',
-    A.tct_lot_no as 'Lot_No',
-    (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
-    B.ctmbr_mbr_id as 'Memebr_ID',
-    C.mem_first_name as 'First_Name',
-    C.mem_last_name as 'Last_Name',
-    S.SectorName as 'Sector_Name',
-    L.lot_pay_amount as 'Inst_Amount',
-    A.tct_paid_amount as 'Paid_Amount',
-    CAST((L.lot_pay_amount - A.tct_paid_amount) as INT) as 'Balance',
-    AGC.mem_first_name + ' ' + AGC.mem_last_name as 'Agent_Name'
-    FROM TblChitTrans A
-    LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
-    LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
-    LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
-    LEFT JOIN TblSector S ON B.ctmbr_sector = S.sectorId
-    LEFT JOIN TblAgents AG ON S.sectorId = AG.agt_sectorId    
-    JOIN TblMembers AGC ON AG.agt_memb_id = AGC.mem_id_no
-    ) as due_list WHERE due_list.Balance > 0;
-GO
-
-/* TODO need to OPTIMIZE */
-DROP VIEW RPT_VIEW_CHIT_TRANS_NO_DUE
-GO
-CREATE VIEW RPT_VIEW_CHIT_TRANS_NO_DUE
-AS
-SELECT * FROM 
-(
-    SELECT
-    L.lot_number as 'Installment',
-    A.tct_lot_no as 'Lot_No',
-    (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
-    B.ctmbr_mbr_id as 'Memebr_ID',
-    C.mem_first_name as 'First_Name',
-    C.mem_last_name as 'Last_Name',
-    S.SectorName as 'Sector_Name',
-    L.lot_pay_amount as 'Inst_Amount',
-    A.tct_paid_amount as 'Paid_Amount',
-    CAST((L.lot_pay_amount - A.tct_paid_amount) as INT) as 'Balance',
-    AGC.mem_first_name + ' ' + AGC.mem_last_name as 'Agent_Name'
-    FROM TblChitTrans A
-    LEFT JOIN TblChitMemberInfo B ON A.tct_lot_no = B.ctmbr_lot_no
-    LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no 
-    LEFT JOIN TblLotDateInfo L ON A.tct_lot_id = L.lot_id_no
-    LEFT JOIN TblSector S ON B.ctmbr_sector = S.sectorId
-    LEFT JOIN TblAgents AG ON S.sectorId = AG.agt_sectorId
-    RIGHT JOIN TblMembers AGC ON AG.agt_memb_id = AGC.mem_id_no
-) as due_list WHERE due_list.Balance = 0;
-GO
-
-select * from RPT_VIEW_CHIT_TRANS_DUE
 select * from RPT_VIEW_CHIT_TRANS
 select * from RPT_VIEW_CHIT_TRANS_NO_DUE
 
