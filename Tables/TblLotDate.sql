@@ -148,11 +148,20 @@ VALUES
 Select * from TblLotDateInfo
 
 
-DECLARE @lotid INT
-SET @lotid = 4
+GO
+DROP PROCEDURE UpdateTblChitMemberDraft
+GO
+CREATE PROCEDURE UpdateTblChitMemberDraft
+@lotid int,
+@chit_id VARCHAR(50)
+AS
 
 INSERT INTO TblChitTrans (tct_lot_id, tct_lot_no) 
-SELECT @lotid, ctmbr_lot_no FROM TblChitMemberInfo
+SELECT 1, ctmbr_lot_no FROM TblChitMemberInfo
 where ctmbr_lot_no NOT IN (
 SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
 JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no)
+
+
+select * from TblChitTrans
+SELECt * FROM TblChitMemberInfo

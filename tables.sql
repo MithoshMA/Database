@@ -1,14 +1,7 @@
 CREATE DATABASE testDb on (name = 'testDb', filename = 'C:\mit\C#\TestDb\TestDb.mdf')
 
 -- Table: userdetail
-drop table TransactionDetails;
-drop table ChittyGLDetails;
-DROP TABLE Chittytermmaster;
-drop table ChittyType;
 DROP TABLE userdetail;
-DROP TABLE customermaster;
-
-
 
 
 CREATE TABLE userdetail
@@ -23,83 +16,51 @@ CREATE TABLE userdetail
   CONSTRAINT "Uc_Username" UNIQUE (useraname)
 );
 
+SELECT *
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = N'TblMembers'
+
+SELECT COLUMN_NAME, DATA_TYPE
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'TblMembers'
 
 
 
-CREATE TABLE customermaster
-(
-  customerid integer NOT NULL,
-  customername character varying(50),
-  address character varying(100),
-  phonenumber integer,
-  adharnumber integer,
-  gender character varying(5),
-  status integer,
-  CONSTRAINT customermaster_pkey PRIMARY KEY (customerid),
-  CONSTRAINT customermaster_adharnumber_key UNIQUE (adharnumber)
-);
+SELECT DISTINCT 'Select * FROM ', TABLE_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
 
 
-Create table ChittyType(
-ChittyTermID int	,
-Name	varchar(50),
-status int default 0
-);
+SELECT name as Foreign_Key
+,schema_name(schema_id) as Schema_Name
+,object_name(parent_object_id) as Table_Name
+FROM sys.foreign_keys
+WHERE Referenced_object_id = object_id('dbo.TblSector','U');
 
 
+GO
+CREATE VIEW V_TBLE_FKEY
+AS
+SELECT 
+OBJECT_NAME(F.parent_object_id) AS 'Child Table',
+COL_NAME(FC.parent_object_id, FC.parent_column_id) AS 'Child Column',
+OBJECT_NAME(FC.referenced_object_id) AS 'Parent Table',
+COL_NAME(FC.referenced_object_id, FC.referenced_column_id) AS 'Parent Column'
+FROM sys.foreign_keys AS F
+INNER JOIN sys.foreign_key_columns AS FC
+ON F.OBJECT_ID = FC.constraint_object_id
+--WHERE OBJECT_NAME (F.referenced_object_id) = 'TblSector'
+--ORDER BY OBJECT_NAME(F.parent_object_id)
+GO
+Select * from V_TBLE_FKEY WHERE [Parent Table] = 'TblMembers'
+Select * from V_TBLE_FKEY WHERE [Child Table] = 'TblMembers'
+
+SELECT COLUMN_NAME, DATA_TYPE, [T].[Parent Table] + '(' + [T].[Parent Column] + ')' as 'FK'
+FROM INFORMATION_SCHEMA.COLUMNS S
+LEFT JOIN V_TBLE_FKEY T ON [T].[Child Column] = S.COLUMN_NAME WHERE S.TABLE_NAME = 'TblMembers'
 
 
--- Table: Chittytermmaster
+SELECT * FROM INFORMATION_SCHEMA.COLUMNS
+UNION ALL
+EXEC sp_fkeys 'TblMembers'
 
-
-
-CREATE TABLE Chittytermmaster
-(
-  Chittytermid integer NOT NULL,
-  Chittytermname character varying(50) NOT NULL,
-  Chittybegindate date,
-  lotday character varying(50),
-  lottime time,
-  installamount integer,
-  noofinstallement integer,
-  Chittyamount integer,
-  livestatus integer,
-  status integer,
-  CONSTRAINT Chittytermmaster_pkey PRIMARY KEY (Chittytermid),
-  CONSTRAINT Chittytermmaster_Chittytermname_key UNIQUE (Chittytermname)
-);
-
-
-
-Create table ChittyGLDetails(
-ChittyGLId serial PRIMARY KEY,	
-Customerid  integer references customermaster(Customerid), 
-Groupid int, 
-ChittyTermID  integer references Chittytermmaster(ChittyTermID) ,   
-Chittynumber int ,	
-TotalPaid int,	
-Balance	int,
-LastTransDate date,	
-Lotstatus int default 0	,
-LotDate	date,
-suretyCustomerid1 integer references customermaster(Customerid)	,
-Suretycustomerid2 integer references customermaster(Customerid)	,
-Remarks	varchar(50),
-status	int default 0
-);																												---
-
---table transactiondetails
-
-
-
-
-Create table TransactionDetails(
-transactionid serial PRIMARY KEY,
-transactiondate date,
-transactionAmount int,	
-ChittyGLId  integer references ChittyGLDetails(ChittyGLId)	,
-Ontimeflag time,	
-Remarks	varchar(50),
-status	int default 0,
-userid int  references userdetail(userid)
-);					
+sp_help 'TblMembers'

@@ -2,13 +2,13 @@ SELECT name as Foreign_Key
 ,schema_name(schema_id) as Schema_Name
 ,object_name(parent_object_id) as Table_Name
 FROM sys.foreign_keys
-WHERE Referenced_object_id = object_id('dbo.TblLotDateInfo','U');
+WHERE Referenced_object_id = object_id('dbo.TblChitInfo','U');
 
 drop TABLE TblChitInfo
 DROP TABLE TblChitTrans
 drop TABLE TblLotDateInfo
+drop TABLE TblChitMemberDraft
 drop TABLE TblChitMemberInfo
-
 drop TABLE TblMembers
 DROP table TblAgent
 drop table TblSector
@@ -69,6 +69,32 @@ CREATE TABLE TblChitInfo
   CONSTRAINT pk_chit_id UNIQUE(chit_id),  
 );
 
+GO
+CREATE TABLE TblChitMemberDraft
+(
+  [ctmbr_no]	            INT IDENTITY PRIMARY KEY,
+  [ctmbr_chit_no]           INT UNIQUE,
+  [ctmbr_mbr_id]            INT,
+  FOREIGN KEY (ctmbr_mbr_id) REFERENCES TblMembers(mem_id_no),  
+);
+
+GO
+DROP PROCEDURE UpdateTblChitMemberDraft
+GO
+CREATE PROCEDURE UpdateTblChitMemberDraft
+@row_count int,
+@start_no int
+AS
+DECLARE @i INT
+TRUNCATE TABLE TblChitMemberDraft
+SET @i = 0
+WHILE @i<@row_count
+BEGIN
+    INSERT TblChitMemberDraft(ctmbr_chit_no) SELECT @start_no+@i
+    SET @i=@i+1
+END
+
+GO
 CREATE TABLE TblChitMemberInfo
 (
   [ctmbr_no]	              INT IDENTITY,
@@ -83,6 +109,7 @@ CREATE TABLE TblChitMemberInfo
   FOREIGN KEY (ctmbr_mbr_id) REFERENCES TblMembers(mem_id_no),  
   FOREIGN KEY (ctmbr_sector) REFERENCES TblSector(sectorId),  
 );
+
 
 GO
 CREATE TABLE TblLotDateInfo
@@ -109,7 +136,7 @@ GO
 CREATE TABLE TblChitTrans
 (
 tct_transId INT IDENTITY,
-[lot_chity_id] VARCHAR(20),
+lot_chity_id VARCHAR(20),
 tct_term_no INT NOT NULL,
 tct_lot_no INT,
 tct_agent_id INT,
@@ -120,6 +147,23 @@ FOREIGN KEY (lot_chity_id, tct_term_no) REFERENCES TblLotDateInfo(lot_chity_id, 
 FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
 )
 
+
+GO
+DROP PROCEDURE UpdateChitTransInfo
+GO
+CREATE PROCEDURE UpdateChitTransInfo
+@chit_id VARCHAR(50),
+@lot_term_no int
+AS
+INSERT INTO TblChitTrans (lot_chity_id, tct_term_no, tct_lot_no) 
+SELECT @chit_id, @lot_term_no, ctmbr_lot_no FROM TblChitMemberInfo
+where ctmbr_lot_no NOT IN (
+SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
+JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no)
+GO
+
+EXECUTE UpdateChitTransInfo 'Chit NO 2023/08-A',1
+--
 
 SELECT *
 FROM INFORMATION_SCHEMA.COLUMNS

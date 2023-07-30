@@ -70,6 +70,7 @@ SELECT D.ctmbr_chit_no, D.ctmbr_mbr_id, M.mem_sector FROM TblChitMemberDraft D
 JOIN TblMembers M ON D.ctmbr_mbr_id = M.mem_id_no
 
 DELETE from TblChitMemberInfo
+SELECT * FROM TblChitMemberInfo
 
 GO
 DROP PROCEDURE CopyFromDraftToChitMember
@@ -81,3 +82,5 @@ INSERT INTO TblChitMemberInfo (ctmbr_lot_no, ctmbr_mbr_id, ctmbr_sector)
 SELECT D.ctmbr_chit_no, D.ctmbr_mbr_id, M.mem_sector FROM TblChitMemberDraft D
 JOIN TblMembers M ON D.ctmbr_mbr_id = M.mem_id_no
 ---TRUNCATE TABLE TblChitMemberDraft
+
+EXECUTE CopyFromDraftToChitMember
