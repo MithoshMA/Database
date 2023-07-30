@@ -2,25 +2,26 @@ SELECT name as Foreign_Key
 ,schema_name(schema_id) as Schema_Name
 ,object_name(parent_object_id) as Table_Name
 FROM sys.foreign_keys
-WHERE Referenced_object_id = object_id('dbo.TblChitInfo','U');
+WHERE Referenced_object_id = object_id('dbo.TblSector','U');
 
-drop TABLE TblChitInfo
+drop TABLE TblWageInfo
 DROP TABLE TblChitTrans
-drop TABLE TblLotDateInfo
 drop TABLE TblChitMemberDraft
+drop TABLE TblLotDateInfo
 drop TABLE TblChitMemberInfo
 drop TABLE TblMembers
 DROP table TblAgent
+drop TABLE TblChitInfo
 drop table TblSector
 
-
+GO
 CREATE TABLE TblSector
 (
   SectorId   VARCHAR(50)    NOT NULL PRIMARY KEY ,
   SectorName VARCHAR(50)    UNIQUE,
   SectorInfo VARCHAR(50),  
 );
-
+GO
 CREATE TABLE TblMembers
 (
   [mem_no]	INT IDENTITY,
@@ -29,7 +30,7 @@ CREATE TABLE TblMembers
   [mem_last_name]   VARCHAR(50)    DEFAULT '',
   [mem_sector]      VARCHAR(50),
   [mem_mail]        VARCHAR(50)     DEFAULT '',
-  [mem_phone]       VARCHAR(16)     DEFAULT '',
+  [mem_phone]       VARCHAR(32)     DEFAULT '',
   [mem_status] SMALLINT DEFAULT 0,
   CONSTRAINT pk_mem_id PRIMARY KEY (mem_no),
   CONSTRAINT pk_mem_id_no UNIQUE(mem_id_no),
@@ -44,7 +45,8 @@ CREATE TABLE TblAgent
     agt_first_name   NVARCHAR(50),
     agt_last_name   NVARCHAR(50),
     agt_phone_no   NVARCHAR(20),
-    agt_status INT DEFAULT 0
+    agt_status INT DEFAULT 0,
+    CONSTRAINT PK_AGENT_ID PRIMARY KEY (agt_id),
     FOREIGN KEY (agt_sectorId) REFERENCES  TblSector(sectorId),
 );
 
@@ -161,6 +163,25 @@ where ctmbr_lot_no NOT IN (
 SELECT C.ctmbr_lot_no FROM  TblChitMemberInfo C
 JOIN TblLotDateInfo L ON C.ctmbr_lot_no = L.lot_winner_no)
 GO
+
+
+CREATE TABLE TblWageInfo
+(
+wge_id INT IDENTITY,
+wge_agent_id INT NOT NULL,
+wge_chit_id VARCHAR(20) NOT NULL,
+wge_term_no INT NOT NULL,
+wge_paid_amount INT DEFAULT 0,
+wge_paydate DATETIME,
+FOREIGN KEY (wge_chit_id, wge_term_no) REFERENCES TblLotDateInfo(lot_chity_id, lot_term_no),
+FOREIGN KEY (wge_agent_id) REFERENCES TblAgent(agt_id)
+)
+
+
+
+
+
+
 
 EXECUTE UpdateChitTransInfo 'Chit NO 2023/08-A',1
 --

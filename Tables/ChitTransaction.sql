@@ -22,10 +22,13 @@ FOREIGN KEY (lot_chity_id, tct_term_no) REFERENCES TblLotDateInfo(lot_chity_id, 
 FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
 )
 
+UPDATE TblChitTrans SET [tct_paydate] = @tct_paydate, [tct_paid_amount] =[tct_paid_amount] 
++ @tct_paid_amount, [tct_due_status] = 1,[tct_agent_id] = 1 WHERE [tct_lot_no] = @tct_lot_no and tct_term_no = 
+
 insert into TblChitTrans (tct_lot_id, tct_lot_no)
 select tct_lot_id, tct_lot_no from TblChitTrans
 
-select * from TblChitTrans
+select * from TblChitTrans where tct_paid_amount > 0
 --delete from TblChitTrans
 
 SELECT * FROM
@@ -247,3 +250,4 @@ SELECT * From TblChitTrans C
 select * from RPT_VIEW_CHIT_TRANS
 select * from RPT_VIEW_CHIT_TRANS_NO_DUE
 
+select * from RPT_VIEW_CHIT_TRANS where Balance <> 0

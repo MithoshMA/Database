@@ -12,7 +12,7 @@ wge_term_no INT NOT NULL,
 wge_paid_amount INT DEFAULT 0,
 wge_paydate DATETIME,
 FOREIGN KEY (wge_chit_id, wge_term_no) REFERENCES TblLotDateInfo(lot_chity_id, lot_term_no),
---FOREIGN KEY (cms_agent_id) REFERENCES TblAgent(agt_id)
+FOREIGN KEY (cms_agent_id) REFERENCES TblAgent(agt_id)
 )
 
 
@@ -91,11 +91,28 @@ DROP VIEW RPT_VIEW_GET_PAYMENT_INFO
 GO
 CREATE VIEW RPT_VIEW_GET_PAYMENT_INFO
 AS
-select V.*, w.wge_paid_amount from VIEW_TERM_WAGE_INFO V
+select V.*, w.wge_paid_amount as 'Received' , V.Commission - w.wge_paid_amount as 'Payable Balance' from VIEW_TERM_WAGE_INFO V
 LEFT JOIN tblAgent A ON A.agt_sectorId = V.Sector
 LEFT JOIn TblWageInfo W on W.wge_agent_id = A.agt_id and V.[Term No] = W.wge_term_no
 GO
 select * from TblWageInfo
+
+GO
+DROP VIEW RPT_VIEW_GET_PAYMENT_INFO
+GO
+CREATE VIEW RPT_VIEW_GET_PAYMENT_INFO
+AS
+select V.*, CASE WHEN w.wge_paid_amount IS NULL THEN 0 ELSE w.wge_paid_amount END as 'Received',
+V.Commission - (CASE WHEN w.wge_paid_amount IS NULL THEN 0 ELSE w.wge_paid_amount END) as 'Wage Balance',
+w.wge_paydate as 'Payment Date' from VIEW_TERM_WAGE_INFO V
+LEFT JOIN tblAgent A ON A.agt_sectorId = V.Sector
+LEFT JOIn TblWageInfo W on W.wge_agent_id = A.agt_id and V.[Term No] = W.wge_term_no
+GO
+
+
+
+
+select * from RPT_VIEW_GET_PAYMENT_INFO
 
 select SQL_CONNECTION_MODE()
 
@@ -118,3 +135,15 @@ VALUES
 (
     1, 'Chit NO 2023/08-A', 2, 150, '2023-07-27'
 )
+
+
+select V.*, CASE WHEN w.wge_paid_amount IS NULL THEN 0 ELSE w.wge_paid_amount END as 'Received',
+V.Commission - (CASE WHEN w.wge_paid_amount IS NULL THEN 0 ELSE w.wge_paid_amount END) as 'Wage Balance',
+w.wge_paydate as 'Payment Date' from VIEW_TERM_WAGE_INFO V
+LEFT JOIN tblAgent A ON A.agt_sectorId = V.Sector
+LEFT JOIn TblWageInfo W on W.wge_agent_id = A.agt_id and V.[Term No] = W.wge_term_no
+
+Select *, null, null FROM VIEW_TERM_WAGE_INFO where Sector = 'AKL_001'
+UNION ALL select NULL, NULL, NULL, NULL, NULL, NULL, NULL, wge_paydate, wge_paid_amount from TblWageInfo WHERE wge_agent_id = 1
+
+select * FROM TblWageInfo

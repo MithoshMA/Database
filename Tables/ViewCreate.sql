@@ -144,7 +144,7 @@ GO
 CREATE VIEW RPT_VIEW_CHIT_TRANS 
 AS
 SELECT
-A.tct_term_no as 'Term Number' ,
+A.tct_term_no as 'Term_Number' ,
 A.tct_lot_no as 'Lot_no',
 (select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
 C.ctmbr_mbr_id as 'Memebr_ID',
