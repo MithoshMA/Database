@@ -61,6 +61,7 @@ select * from TblChitTrans
 select * from TblChitMemberInfo
 
 select ctmbr_sector, COUNT(ctmbr_sector) ctmbr_sector from TblChitMemberInfo group by ctmbr_sector
+select COUNT(ctmbr_sector) ctmbr_sector from TblChitMemberInfo group by ctmbr_sector
 select COUNT(tct_lot_no) from TblChitTrans GROUP by tct_term_no
 
 
@@ -110,11 +111,9 @@ LEFT JOIn TblWageInfo W on W.wge_agent_id = A.agt_id and V.[Term No] = W.wge_ter
 GO
 
 
-
+select * from RPT_VIEW_GET_PAYMENT_INFO ORDER BY 'Sector', 'Term No'
 
 select * from RPT_VIEW_GET_PAYMENT_INFO
-
-select SQL_CONNECTION_MODE()
 
 
 select Sector, SUM(Count), SUM(Collection), SUM(Collected_Amount), SUM(Balance), SUM(Commission) from VIEW_TERM_WAGE_INFO group by Sector
@@ -147,3 +146,5 @@ Select *, null, null FROM VIEW_TERM_WAGE_INFO where Sector = 'AKL_001'
 UNION ALL select NULL, NULL, NULL, NULL, NULL, NULL, NULL, wge_paydate, wge_paid_amount from TblWageInfo WHERE wge_agent_id = 1
 
 select * FROM TblWageInfo
+
+Select * from RPT_VIEW_CHIT_TRANS

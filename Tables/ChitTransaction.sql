@@ -244,10 +244,78 @@ SELECT tct_lot_id, L.lot_number From TblChitTrans C
 LEFT JOIN TblLotDateInfo L ON C.tct_lot_id = L.lot_id_no
 
 
+
 SELECT * From TblChitTrans C
+SELECT * From TblChitInfo I
 
 
 select * from RPT_VIEW_CHIT_TRANS
 select * from RPT_VIEW_CHIT_TRANS_NO_DUE
 
 select * from RPT_VIEW_CHIT_TRANS where Balance <> 0
+
+select 
+tct_term_no as 'Installment', 
+COUNT(tct_term_no) as 'Count', 
+COUNT(tct_term_no) * I.chit_month_amt as 'Total Amount', 
+SUM(tct_paid_amount) as 'Paid Amount',  
+COUNT(tct_term_no) * I.chit_month_amt  - SUM(tct_paid_amount) as Balance,
+SUM(tct_paid_amount) * .001 * I.chit_agt_comission as Commission
+from TblChitTrans C 
+join TblChitInfo I on I.Chit_id = C.lot_chity_id
+where lot_chity_id = 'Chit NO 2023/08-A' 
+group by tct_term_no, I.chit_month_amt , I.chit_agt_comission
+order by tct_term_no
+
+
+select 
+tct_term_no as 'Installment', 
+COUNT(tct_term_no) as 'Count', 
+COUNT(tct_term_no) * I.chit_month_amt as 'Total Amount', 
+SUM(tct_paid_amount) as 'Paid Amount',  
+COUNT(tct_term_no) * I.chit_month_amt  - SUM(tct_paid_amount) as Balance,
+SUM(tct_paid_amount) * .001 * I.chit_agt_comission as Commission,
+lot_chity_id as 'Chit_ID'
+from TblChitTrans C 
+join TblChitInfo I on I.Chit_id = C.lot_chity_id
+where lot_chity_id = 'Chit NO 2023/08-A' 
+group by tct_term_no, I.chit_month_amt , I.chit_agt_comission,lot_chity_id
+order by tct_term_no
+
+
+SELECT S.Installment, C.chit_month_amt*S.[Count] as 'Collection'  FROM TblChitInfo C
+JOIN 
+(SELECT 
+tct_term_no as 'Installment',
+COUNT(tct_term_no) as 'Count', 
+SUM(tct_paid_amount) as 'Paid Amount',
+lot_chity_id as 'Chit_ID'
+FROM TblChitTrans
+where lot_chity_id = 'Chit NO 2023/08-A' 
+group by tct_term_no,lot_chity_id)
+as S ON S.Chit_ID = C.Chit_ID
+
+
+GO
+DROP VIEW VIEW_TERM_WAGE_INFO
+GO
+CREATE VIEW VIEW_TERM_WAGE_INFO
+AS
+Select 
+T.tct_term_no as 'Term No',
+ctmbr_sector as 'Sector',
+COUNT(ctmbr_sector) as 'Count', 
+COUNT(ctmbr_sector)*1000 as 'Collection', 
+SUM(T.tct_paid_amount) as 'Collected_Amount', 
+COUNT(ctmbr_sector)*1000  - SUM(T.tct_paid_amount)  as 'Balance',
+ SUM(T.tct_paid_amount) * 0.03 as 'Commission' from TblChitMemberInfo 
+JOIN TblChitTrans T ON T.tct_lot_no = TblChitMemberInfo.ctmbr_lot_no  GROUP BY ctmbr_sector, T.tct_term_no
+
+select * from TblChitTrans C
+LEFT JOIN TblChitInfo CH ON CH.chit_id = C.lot_chity_id  
+
+
+Select * FROM RPT_VIEW_TRANS_SUMMARY_SUM
+select (1000*.01*3)
+
+
