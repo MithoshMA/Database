@@ -47,15 +47,7 @@ LEFT JOIN TblAgent agt ON S.SectorId = agt.agt_sectorId
 LEFT JOIN TblChitMemberInfo C ON C.ctmbr_sector = S.SectorId group by C.ctmbr_sector, agt.agt_first_name, S.SectorName, S.SectorId, agt.agt_last_name
 GO
 
-GO
-DROP VIEW VIEW_WAGE_AGENT_INFO
-GO
-CREATE VIEW VIEW_WAGE_AGENT_INFO
-AS
-SELECT S.SectorId as 'Sector ID', S.SectorName as 'Sector', agt.agt_first_name 'Agent First Name', agt.agt_last_name 'Last Name', COUNT(C.ctmbr_lot_no) as 'Member Count' from TblSector S
-LEFT JOIN TblAgent agt ON S.SectorId = agt.agt_sectorId
-LEFT JOIN TblChitMemberInfo C ON C.ctmbr_sector = S.SectorId group by C.ctmbr_sector, agt.agt_first_name, S.SectorName, S.SectorId, agt.agt_last_name
-GO
+
 
 select * from TblChitTrans
 select * from TblChitMemberInfo
@@ -148,3 +140,5 @@ UNION ALL select NULL, NULL, NULL, NULL, NULL, NULL, NULL, wge_paydate, wge_paid
 select * FROM TblWageInfo
 
 Select * from RPT_VIEW_CHIT_TRANS
+
+select * from RPT_VIEW_GET_PAYMENT_INFO ORDER BY 'Sector', 'Inst'

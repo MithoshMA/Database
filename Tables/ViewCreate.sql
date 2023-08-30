@@ -151,7 +151,8 @@ GO
 CREATE VIEW RPT_VIEW_CHIT_TRANS 
 AS
 SELECT
-A.tct_term_no as 'Term_Number' ,
+--A.tct_term_no as 'Term_Number' ,
+A.tct_term_no as 'Inst' ,
 A.tct_lot_no as 'Lot_no',
 --(select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
 [L].[lot_date]as 'LOT_Date',
@@ -183,6 +184,15 @@ LEFT JOIN TblAgent agt ON S.SectorId = agt.agt_sectorId
 LEFT JOIN TblChitMemberInfo C ON C.ctmbr_sector = S.SectorId group by C.ctmbr_sector, agt.agt_first_name, S.SectorName, S.SectorId, agt.agt_last_name
 GO
 
+GO
+DROP VIEW VIEW_WAGE_AGENT_INFO
+GO
+CREATE VIEW VIEW_WAGE_AGENT_INFO
+AS
+SELECT S.SectorId as 'Sector_ID', S.SectorName as 'Sector', agt.agt_first_name 'First_Name', agt.agt_last_name 'Last_Name', COUNT(C.ctmbr_lot_no) as 'Member_Count' from TblSector S
+LEFT JOIN TblAgent agt ON S.SectorId = agt.agt_sectorId
+LEFT JOIN TblChitMemberInfo C ON C.ctmbr_sector = S.SectorId group by C.ctmbr_sector, agt.agt_first_name, S.SectorName, S.SectorId, agt.agt_last_name
+GO
 
 GO
 DROP VIEW VIEW_TERM_WAGE_INFO
@@ -196,7 +206,7 @@ COUNT(ctmbr_sector) as 'Count',
 COUNT(ctmbr_sector)*1000 as 'Collection', 
 SUM(T.tct_paid_amount) as 'Collected_Amount', 
 COUNT(ctmbr_sector)*1000  - SUM(T.tct_paid_amount)  as 'Balance',
- SUM(T.tct_paid_amount) * 0.03 as 'Commission' from TblChitMemberInfo 
+ SUM(T.tct_paid_amount) * 0.03 ............ as 'Commission' from TblChitMemberInfo 
 JOIN TblChitTrans T ON T.tct_lot_no = TblChitMemberInfo.ctmbr_lot_no  GROUP BY ctmbr_sector, T.tct_term_no
 
 
@@ -205,13 +215,20 @@ DROP VIEW RPT_VIEW_GET_PAYMENT_INFO
 GO
 CREATE VIEW RPT_VIEW_GET_PAYMENT_INFO
 AS
-select V.*, CASE WHEN w.wge_paid_amount IS NULL THEN 0 ELSE w.wge_paid_amount END as 'Received',
-V.Commission - (CASE WHEN w.wge_paid_amount IS NULL THEN 0 ELSE w.wge_paid_amount END) as 'Wage Balance',
-w.wge_paydate as 'Payment Date' from VIEW_TERM_WAGE_INFO V
-LEFT JOIN tblAgent A ON A.agt_sectorId = V.Sector
-LEFT JOIn TblWageInfo W on W.wge_agent_id = A.agt_id and V.[Term No] = W.wge_term_no
+SELECT --C.lot_chity_id as 'Chit_ID', 
+tct_term_no as 'Inst', 
+CH.ctmbr_sector as 'Sector', 
+COUNT(*) as 'Count', 
+COUNT(*) * CT.chit_month_amt as 'Collection', 
+SUM(tct_paid_amount) as 'Collected' ,
+COUNT(*) * CT.chit_month_amt - SUM(tct_paid_amount) as 'Due',
+SUM(tct_paid_amount) * CT.chit_agt_comission * 0.01 as 'Commission'
+from TblChitTrans C
+LEFT JOIN TblChitMemberInfo CH ON C.tct_lot_no = CH.ctmbr_lot_no
+LEFT JOIN TblLotDateInfo L on c.tct_term_no = L.lot_term_no
+LEFT JOIN TblChitInfo CT ON L.lot_chity_id = CT.chit_id
+GROUP BY  C.tct_term_no, C.lot_chity_id, CH.ctmbr_sector, CT.chit_month_amt, CT.chit_agt_comission
 GO
-
 
 
 GO
@@ -226,16 +243,16 @@ S.SectorName as 'Sector',
 AG.agt_first_name + ' ' + AG.agt_last_name as 'Agent',
 --(select convert(varchar, A.agt_trans_date , 106)) as 'Date',
 A.agt_trans_date as 'Date',
----A.agt_trans_remarks as 'Remarks', /* TODO */
-'Payment for term XXX' as Remarks,
-NULL as 'Term', 
+A.agt_trans_remarks as 'Remarks', 
+--'Payment for term XXX' as Remarks,
+--NULL as 'Term', 
 CASE
-    WHEN agt_trans_type = 1 THEN agt_amount
+    WHEN agt_trans_type = 1 THEN CONVERT(DECIMAL(10,2), agt_amount)
     ELSE NULL
 END as 'Debit',
 
 CASE
-    WHEN agt_trans_type = 0 THEN agt_amount
+    WHEN agt_trans_type = 0 THEN CONVERT(DECIMAL(10,2), agt_amount)
     ELSE NULL
 END as 'Credit'
 FROM TblAgentTrans A
@@ -247,9 +264,9 @@ Select Ts.SectorName as 'Sector',
 A.agt_first_name + ' ' + A.agt_last_name as 'Agent',
 --(select convert(varchar, L.lot_date , 106)) as 'Date',
  L.lot_date as 'Date',
---'Commission for Term : ' + CAST(C.tct_term_no AS varchar) as 'Remarks', 
-'Commission for Term : ' as 'Remarks', 
-C.tct_term_no as 'Term', 
+'Commission for Term : ' + CAST(C.tct_term_no AS varchar) as 'Remarks', 
+--'Commission for Term : ' as 'Remarks', 
+--C.tct_term_no as 'Term', 
 NULL as 'Debit', 
 -- COUNT(*), 
  SUM([c].[tct_paid_amount]) * CT.chit_agt_comission*.01 as 'Credit' 
@@ -303,3 +320,41 @@ CREATE VIEW RPT_VIEW_TRANS_SUMMARY_SUM
 AS
 SELECT SUM(Collection) as Collection, SUM(Collected)  as Collected, SUM(Due)  as Due, SUM(Commission) as Commission, SUM(Prize_Money)  as Prize_Money, SUM(Revenue) as Revenue FROM RPT_VIEW_TRANS_SUMMARY
 GO
+
+
+SELECT 
+CT.Inst, 
+CT.[Count], 
+Count *CH.chit_month_amt*1.00 as 'Collection',
+CT.Collected * 1.00 as 'Collected', 
+1.00*Count *CH.chit_month_amt - CT.Collected as 'Due',
+CH.chit_agt_comission * Collected*.01 as 'Commission',
+L.lot_prize_money*1.00 as 'Prize_Money',
+--Count *CH.chit_month_amt - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) as 'Balance',
+CASE 
+    WHEN L.lot_prize_money IS NULL THEN
+        CT.Collected - (CH.chit_agt_comission * Collected*.01) 
+  ELSE 
+    CT.Collected - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) 
+  END as 'Revenue'
+from 
+    (
+        Select 
+    C.tct_term_no, C.lot_chity_id,
+    C.tct_term_no as 'Inst', 
+    COUNT(C.tct_term_no) as 'Count',
+    SUM(C.tct_paid_amount) as 'Collected'
+    from TblChitTrans C
+    GROUP BY C.tct_term_no, c.lot_chity_id, c.
+    ) as CT
+LEFT JOIN TblChitInfo CH ON CH.chit_id = CT.lot_chity_id 
+LEFT JOIN TblLotDateInfo L ON CH.chit_id = L.lot_chity_id AND CT.tct_term_no = L.lot_term_no
+GO 
+
+select * from TblChitTrans C
+LEFT JOIN TblChitMemberInfo CH ON C.tct_lot_no = CH.ctmbr_lot_no
+
+
+
+select * from TblChitMemberInfo
+select * from RPT_VIEW_GET_PAYMENT_INFO ORDER BY 'Sector', 'Term No'

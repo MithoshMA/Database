@@ -10,7 +10,6 @@ select * from TblLotDateInfo
 select * from VIEW_TERM_WAGE_INFO where Sector = 'KKU_002'
 
 
-
 select * from RPT_VIEW_GET_PAYMENT_INFO
 select * from RPT_VIEW_GET_PAYMENT_INFO
 
@@ -41,3 +40,7 @@ select * from  RPT_VIEW_CHIT_TRANS
 
 select * from TblMembers
 select  ROW_NUMBER() OVER(ORDER BY mem_id_no), mem_id_no, mem_first_name from TblMembers
+
+select * from TblAgentTrans ORDER BY agt_id
+
+delete from TblAgentTrans
