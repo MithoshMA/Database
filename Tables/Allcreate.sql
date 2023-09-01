@@ -114,6 +114,16 @@ BEGIN
 END
 
 GO
+DROP PROCEDURE CopyFromDraftToChitMember
+GO
+CREATE PROCEDURE CopyFromDraftToChitMember
+AS
+DELETE FROM TblChitMemberInfo
+INSERT INTO TblChitMemberInfo (ctmbr_lot_no, ctmbr_mbr_id, ctmbr_sector)
+SELECT D.ctmbr_chit_no, D.ctmbr_mbr_id, M.mem_sector FROM TblChitMemberDraft D
+JOIN TblMembers M ON D.ctmbr_mbr_id = M.mem_id_no
+GO
+
 CREATE TABLE TblChitMemberInfo
 (
   [ctmbr_no]	              INT IDENTITY,
@@ -149,7 +159,6 @@ CREATE TABLE TblLotDateInfo
   FOREIGN KEY (lot_chity_id) REFERENCES TblChitInfo(chit_id),
 );
 GO
-
 
 GO
 CREATE TABLE TblChitTrans
@@ -194,7 +203,6 @@ FOREIGN KEY (wge_chit_id, wge_term_no) REFERENCES TblLotDateInfo(lot_chity_id, l
 FOREIGN KEY (wge_agent_id) REFERENCES TblAgent(agt_id)
 )
 
-
 GO
 CREATE TABLE TblUserLogin
 (
@@ -202,36 +210,9 @@ CREATE TABLE TblUserLogin
     ud_user_name   VARCHAR(50) NOT NULL UNIQUE,
     ud_password NVARCHAR(50)
 );
-
 GO
 
-GO
-DROP PROCEDURE CopyFromDraftToChitMember
-GO
-CREATE PROCEDURE CopyFromDraftToChitMember
-AS
-DELETE FROM TblChitMemberInfo
-INSERT INTO TblChitMemberInfo (ctmbr_lot_no, ctmbr_mbr_id, ctmbr_sector)
-SELECT D.ctmbr_chit_no, D.ctmbr_mbr_id, M.mem_sector FROM TblChitMemberDraft D
-JOIN TblMembers M ON D.ctmbr_mbr_id = M.mem_id_no
-
-
-
+INSERT INTO TblUserLogin (ud_user_name) VALUES ('admin')
+INSERT INTO TblUserLogin (ud_user_name) VALUES ('user')
 
 --EXECUTE UpdateChitTransInfo 'Chit NO 2023/08-A',1
---
-
-SELECT *
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = N'TblChitTrans'
-
-SELECT COLUMN_NAME, DATA_TYPE
-FROM INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME = 'TblLotDateInfo'
-
-SELECT A.TABLE_NAME, COLUMN_NAME, DATA_TYPE, B.CONSTRAINT_TYPE
-FROM INFORMATION_SCHEMA.COLUMNS A
-LEFT JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS B ON A.TABLE_NAME = B.TABLE_NAME
-WHERE A.TABLE_NAME = 'TblLotDateInfo'
-
-SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE TABLE_NAME = 'TblLotDateInfo' AND CONSTRAINT_TYPE = 'constraint_type';

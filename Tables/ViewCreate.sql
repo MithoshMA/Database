@@ -18,7 +18,7 @@ GO
 CREATE VIEW RPT_VW_AGENTS as
 SELECT 
 A.agt_id,
-A.agt_no as 'Agent No',
+A.agt_no as 'Agent_No',
 A.agt_first_name as 'First_Name',
 A.agt_last_name as 'Last_Name',
 S.SectorName as 'Sector',
@@ -36,7 +36,7 @@ SELECT
 [mem_first_name] as 'First_Name',
 [mem_last_name]  as 'Last_Name',
 (select SectorName from TblSector where TblMembers.mem_sector = TblSector.SectorId)  as 'Sector',
-(Select LEFT([mem_mail], 18) ) as 'Mail_ID',
+(Select LEFT([mem_mail], 18) ) as 'Address',
 [mem_phone]     as 'Contact'
 FROM TblMembers where mem_status = 0;
 GO
@@ -143,6 +143,24 @@ SELECT
   LEFT JOIN TblChitMemberInfo B ON A.lot_winner_no = B.ctmbr_lot_no
   LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
 GO
+
+GO
+DROP VIEW RPT_VIW_WINNER_INFO
+GO
+CREATE VIEW RPT_VIW_WINNER_INFO AS
+SELECT 
+  A.[lot_chity_id]	  as 'Chit_ID',  
+  [lot_term_no]   as 'Installment',
+  [C].[mem_id_no] as 'Member_ID',
+  C.mem_first_name as 'First_Name',
+  C.mem_last_name as 'Last_Name',
+  A.lot_winner_no as 'Win_Lot_No',
+  (select convert(varchar, [lot_date] , 34)) as 'Date',  
+  [lot_prize_money]  as 'Prize_Money'
+  from TblLotDateInfo A
+  LEFT JOIN TblChitMemberInfo B ON A.lot_winner_no = B.ctmbr_lot_no
+  LEFT JOIN TblMembers C ON B.ctmbr_mbr_id = C.mem_id_no
+GO
 /* 6 TblChitTrans */
 
 -- VIEW 
@@ -156,7 +174,7 @@ A.tct_term_no as 'Inst' ,
 A.tct_lot_no as 'Lot_no',
 --(select convert(varchar, [L].[lot_date] , 1)) as 'LOT_Date',
 [L].[lot_date]as 'LOT_Date',
-C.ctmbr_mbr_id as 'Memebr_ID',
+C.ctmbr_mbr_id as 'Member_ID',
 M.mem_first_name as 'First_Name',
 M.mem_last_name as 'Last_Name',
 S.SectorName as 'Sector_Name',
@@ -172,6 +190,16 @@ LEFT JOIN TblSector S ON C.ctmbr_sector = S.sectorId
 LEFT JOIN TblAgent AG ON C.ctmbr_sector = AG.agt_sectorId
 --LEFT JOIN TblAgent AG ON A.tct_agent_id = AG.agt_id TODO - Optimize
 GO
+
+GO
+DROP VIEW RPT_VIEW_CHIT_TRANS_DUE_SUM
+GO
+CREATE VIEW RPT_VIEW_CHIT_TRANS_DUE_SUM
+AS
+SELECT  Lot_no,  Member_ID, First_Name, Last_Name, COUNT(Lot_no) as 'Due_Count' ,SUM(Balance) as Due_Amount, Sector_Name, Agent_Name FROM 
+(SELECT * FROM RPT_VIEW_CHIT_TRANS where Balance > 0) as sss GROUP BY Lot_no, Member_ID, First_Name, Last_Name, Sector_Name, Agent_Name HAVING SUM(Balance) > 0
+GO
+
 
 /* TODO need to OPTIMIZE */
 GO
@@ -195,29 +223,15 @@ LEFT JOIN TblChitMemberInfo C ON C.ctmbr_sector = S.SectorId group by C.ctmbr_se
 GO
 
 GO
-DROP VIEW VIEW_TERM_WAGE_INFO
-GO
-CREATE VIEW VIEW_TERM_WAGE_INFO
-AS
-Select 
-T.tct_term_no as 'Term No',
-ctmbr_sector as 'Sector',
-COUNT(ctmbr_sector) as 'Count', 
-COUNT(ctmbr_sector)*1000 as 'Collection', 
-SUM(T.tct_paid_amount) as 'Collected_Amount', 
-COUNT(ctmbr_sector)*1000  - SUM(T.tct_paid_amount)  as 'Balance',
- SUM(T.tct_paid_amount) * 0.03 ............ as 'Commission' from TblChitMemberInfo 
-JOIN TblChitTrans T ON T.tct_lot_no = TblChitMemberInfo.ctmbr_lot_no  GROUP BY ctmbr_sector, T.tct_term_no
-
-
-GO
 DROP VIEW RPT_VIEW_GET_PAYMENT_INFO
 GO
 CREATE VIEW RPT_VIEW_GET_PAYMENT_INFO
 AS
 SELECT --C.lot_chity_id as 'Chit_ID', 
 tct_term_no as 'Inst', 
-CH.ctmbr_sector as 'Sector', 
+S.SectorName as 'Sector', 
+A.agt_first_name as 'First_Name', 
+A.agt_last_name as 'Last_Name', 
 COUNT(*) as 'Count', 
 COUNT(*) * CT.chit_month_amt as 'Collection', 
 SUM(tct_paid_amount) as 'Collected' ,
@@ -227,9 +241,10 @@ from TblChitTrans C
 LEFT JOIN TblChitMemberInfo CH ON C.tct_lot_no = CH.ctmbr_lot_no
 LEFT JOIN TblLotDateInfo L on c.tct_term_no = L.lot_term_no
 LEFT JOIN TblChitInfo CT ON L.lot_chity_id = CT.chit_id
-GROUP BY  C.tct_term_no, C.lot_chity_id, CH.ctmbr_sector, CT.chit_month_amt, CT.chit_agt_comission
-GO
-
+LEFT JOIN TblMembers M ON CH.ctmbr_mbr_id = M.mem_id_no
+LEFT JOIN TblSector S ON M.mem_sector = S.SectorId
+LEFT JOIN TblAgent A ON A.agt_sectorId = S.SectorId
+GROUP BY S.SectorName, C.tct_term_no, C.lot_chity_id, CH.ctmbr_sector, CT.chit_month_amt, CT.chit_agt_comission, A.agt_first_name, A.agt_last_name
 
 GO
 DROP VIEW RPT_VIEW_AGENT_TRANS_SUM 
@@ -345,7 +360,7 @@ from
     COUNT(C.tct_term_no) as 'Count',
     SUM(C.tct_paid_amount) as 'Collected'
     from TblChitTrans C
-    GROUP BY C.tct_term_no, c.lot_chity_id, c.
+    GROUP BY C.tct_term_no, c.lot_chity_id
     ) as CT
 LEFT JOIN TblChitInfo CH ON CH.chit_id = CT.lot_chity_id 
 LEFT JOIN TblLotDateInfo L ON CH.chit_id = L.lot_chity_id AND CT.tct_term_no = L.lot_term_no
@@ -357,4 +372,4 @@ LEFT JOIN TblChitMemberInfo CH ON C.tct_lot_no = CH.ctmbr_lot_no
 
 
 select * from TblChitMemberInfo
-select * from RPT_VIEW_GET_PAYMENT_INFO ORDER BY 'Sector', 'Term No'
+select * from RPT_VIEW_GET_PAYMENT_INFO ORDER BY 'Sector', 'Inst'
