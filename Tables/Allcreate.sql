@@ -1,8 +1,8 @@
-SELECT name as Foreign_Key
+/*SELECT name as Foreign_Key
 ,schema_name(schema_id) as Schema_Name
 ,object_name(parent_object_id) as Table_Name
 FROM sys.foreign_keys
-WHERE Referenced_object_id = object_id('dbo.TblSector','U');
+WHERE Referenced_object_id = object_id('dbo.TblSector','U');*/
 
 drop TABLE TblWageInfo
 DROP TABLE TblChitTrans
@@ -15,6 +15,7 @@ drop table TblAgent
 drop TABLE TblChitInfo
 drop table TblSector
 drop table TblUserLogin
+drop table TblLicense
 
 GO
 CREATE TABLE TblSector
@@ -64,7 +65,7 @@ CREATE TABLE TblChitInfo
   [chit_lot_start]          INT,
   [chit_start_dt]           DATE,
   [chit_duration]           SMALLINT DEFAULT 1,
-  [chit_agt_comission]      SMALLINT DEFAULT 1,
+  [chit_agt_comission]      DECIMAL (5, 2)  DEFAULT 1.0,
   [chit_auction_date]       SMALLINT DEFAULT 1,
   [chit_condition]          SMALLINT DEFAULT 0,
   [chit_status]             SMALLINT DEFAULT 0,
@@ -82,7 +83,6 @@ CREATE TABLE TblAgentTrans
     agt_amount    FLOAT DEFAULT 0.0, -- NUMERIC(9,2) DEFAULT 0.0
     agt_trans_date   DATE,
     [agt_trans_remarks] VARCHAR(50) DEFAULT NULL,
-
     CONSTRAINT PK_AGENT_TRANS_ID PRIMARY KEY (agt_trans_id),
     FOREIGN KEY (agt_id) REFERENCES  TblAgent(agt_id),
     FOREIGN KEY (agt_trans_chit_id) REFERENCES  TblChitInfo(chit_id)
@@ -175,7 +175,6 @@ FOREIGN KEY (lot_chity_id, tct_term_no) REFERENCES TblLotDateInfo(lot_chity_id, 
 FOREIGN KEY (tct_lot_no) REFERENCES TblChitMemberInfo(ctmbr_lot_no)
 )
 
-
 GO
 DROP PROCEDURE UpdateChitTransInfo
 GO
@@ -209,6 +208,13 @@ CREATE TABLE TblUserLogin
     ud_id INT IDENTITY,
     ud_user_name   VARCHAR(50) NOT NULL UNIQUE,
     ud_password NVARCHAR(50)
+);
+GO
+
+GO
+CREATE TABLE TblLicense
+(   
+    lns_license NVARCHAR(100) DEFAULT NULL
 );
 GO
 

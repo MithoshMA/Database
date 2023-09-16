@@ -284,7 +284,8 @@ A.agt_first_name + ' ' + A.agt_last_name as 'Agent',
 --C.tct_term_no as 'Term', 
 NULL as 'Debit', 
 -- COUNT(*), 
- SUM([c].[tct_paid_amount]) * CT.chit_agt_comission*.01 as 'Credit' 
+ --SUM([c].[tct_paid_amount]) * CT.chit_agt_comission*.01 as 'Credit' 
+ CAST(ROUND(SUM([c].[tct_paid_amount]) * CT.chit_agt_comission*.01, 2) as numeric(32,2)) as 'Credit' 
  from TblChitTrans C 
 LEFT JOIN TblChitMemberInfo CM ON  CM.ctmbr_lot_no = C.tct_lot_no 
 LEFT JOIN TblSector TS ON TS.SectorId = CM.ctmbr_sector
@@ -305,14 +306,14 @@ CT.[Count],
 Count *CH.chit_month_amt*1.00 as 'Collection',
 CT.Collected * 1.00 as 'Collected', 
 1.00*Count *CH.chit_month_amt - CT.Collected as 'Due',
-CH.chit_agt_comission * Collected*.01 as 'Commission',
+CAST(ROUND(CH.chit_agt_comission * Collected*.01, 2) as numeric(32,2)) as 'Commission',
 L.lot_prize_money*1.00 as 'Prize_Money',
 --Count *CH.chit_month_amt - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) as 'Balance',
 CASE 
-    WHEN L.lot_prize_money IS NULL THEN
-        CT.Collected - (CH.chit_agt_comission * Collected*.01) 
+    WHEN L.lot_prize_money IS NULL THEN         
+        CAST(ROUND(CT.Collected - (CH.chit_agt_comission * Collected*.01) , 2) as numeric (32,2))
   ELSE 
-    CT.Collected - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) 
+    CAST(ROUND(CT.Collected - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) , 2) as numeric (32,2))
   END as 'Revenue'
 from 
     (
@@ -335,41 +336,3 @@ CREATE VIEW RPT_VIEW_TRANS_SUMMARY_SUM
 AS
 SELECT SUM(Collection) as Collection, SUM(Collected)  as Collected, SUM(Due)  as Due, SUM(Commission) as Commission, SUM(Prize_Money)  as Prize_Money, SUM(Revenue) as Revenue FROM RPT_VIEW_TRANS_SUMMARY
 GO
-
-
-SELECT 
-CT.Inst, 
-CT.[Count], 
-Count *CH.chit_month_amt*1.00 as 'Collection',
-CT.Collected * 1.00 as 'Collected', 
-1.00*Count *CH.chit_month_amt - CT.Collected as 'Due',
-CH.chit_agt_comission * Collected*.01 as 'Commission',
-L.lot_prize_money*1.00 as 'Prize_Money',
---Count *CH.chit_month_amt - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) as 'Balance',
-CASE 
-    WHEN L.lot_prize_money IS NULL THEN
-        CT.Collected - (CH.chit_agt_comission * Collected*.01) 
-  ELSE 
-    CT.Collected - (CH.chit_agt_comission * Collected*.01 + L.lot_prize_money) 
-  END as 'Revenue'
-from 
-    (
-        Select 
-    C.tct_term_no, C.lot_chity_id,
-    C.tct_term_no as 'Inst', 
-    COUNT(C.tct_term_no) as 'Count',
-    SUM(C.tct_paid_amount) as 'Collected'
-    from TblChitTrans C
-    GROUP BY C.tct_term_no, c.lot_chity_id
-    ) as CT
-LEFT JOIN TblChitInfo CH ON CH.chit_id = CT.lot_chity_id 
-LEFT JOIN TblLotDateInfo L ON CH.chit_id = L.lot_chity_id AND CT.tct_term_no = L.lot_term_no
-GO 
-
-select * from TblChitTrans C
-LEFT JOIN TblChitMemberInfo CH ON C.tct_lot_no = CH.ctmbr_lot_no
-
-
-
-select * from TblChitMemberInfo
-select * from RPT_VIEW_GET_PAYMENT_INFO ORDER BY 'Sector', 'Inst'
